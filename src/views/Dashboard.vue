@@ -19,6 +19,9 @@
               <button class="btn btn-outline-danger" @click="logout">
                 <i class="bi bi-box-arrow-right"></i> Logout
               </button>
+              <button class="btn btn-warning" @click="testLogout">
+                <i class="bi bi-exclamation-triangle"></i> Test Logout
+              </button>
             </div>
           </div>
         </div>
@@ -194,11 +197,13 @@
 
 <script>
 import { ref, reactive, onMounted, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 
 export default {
   name: 'Dashboard',
   setup() {
+    const router = useRouter()
     const authStore = useAuthStore()
     const loading = ref(false)
     
@@ -325,9 +330,23 @@ export default {
     }
 
     const logout = () => {
+      console.log('Logout function called from Dashboard')
+      alert('Logout function is working!')
       authStore.logout()
-      // Optionally redirect to login page
-      // router.push('/login')
+      console.log('Auth store logout completed')
+      // Redirect to logout success page
+      router.push('/logout-success')
+      console.log('Router push completed')
+    }
+
+    const testLogout = () => {
+      console.log('Test Logout function called')
+      alert('Test Logout function is working!')
+      authStore.logout()
+      console.log('Auth store logout completed for test')
+      // Redirect to logout success page
+      router.push('/logout-success')
+      console.log('Router push completed for test')
     }
 
     onMounted(() => {
@@ -349,7 +368,8 @@ export default {
       exportActivities,
       generateReport,
       showSettings,
-      logout
+      logout,
+      testLogout
     }
   }
 }

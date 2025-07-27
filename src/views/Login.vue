@@ -8,7 +8,7 @@
               <!-- Success Message -->
               <div v-if="showSuccess" class="alert alert-success text-center mb-4">
                 <i class="bi bi-check-circle-fill me-2"></i>
-                <strong>登录成功！</strong> 正在跳转到仪表板...
+                <strong>Login Successful!</strong> Redirecting to dashboard...
               </div>
 
               <div class="text-center mb-4">
@@ -241,7 +241,7 @@ export default {
 
       } catch (error) {
         console.error('Login error:', error)
-        alert('登录失败: ' + error.message)
+        alert('Login failed: ' + error.message)
       } finally {
         isLoading.value = false
       }

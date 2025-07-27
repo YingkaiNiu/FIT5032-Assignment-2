@@ -8,6 +8,7 @@ import Services from '../views/Services.vue'
 import About from '../views/About.vue'
 import Contact from '../views/Contact.vue'
 import Resources from '../views/Resources.vue'
+import LogoutSuccess from '../views/LogoutSuccess.vue'
 
 const routes = [
   {
@@ -26,6 +27,11 @@ const routes = [
     name: 'Register',
     component: Register,
     meta: { requiresGuest: true }
+  },
+  {
+    path: '/logout-success',
+    name: 'LogoutSuccess',
+    component: LogoutSuccess
   },
   {
     path: '/dashboard',
@@ -68,6 +74,12 @@ const router = createRouter({
 
 // Navigation guards
 router.beforeEach((to, from, next) => {
+  // Allow access to logout-success page regardless of auth status
+  if (to.path === '/logout-success') {
+    next()
+    return
+  }
+
   const token = localStorage.getItem('token')
   const user = localStorage.getItem('user')
   const isAuthenticated = !!token && !!user

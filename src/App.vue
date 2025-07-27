@@ -105,6 +105,7 @@ export default {
     }
 
     const logout = () => {
+      console.log('Logout function called from App.vue')
       // Clear all authentication data
       localStorage.removeItem('token')
       localStorage.removeItem('user')
@@ -113,11 +114,9 @@ export default {
       // Clear auth state
       clearAuth()
       
-      // Show logout message
-      alert('您已成功退出登录！')
-      
-      // Redirect to login page
-      router.push('/login')
+      console.log('Auth data cleared, redirecting to logout-success')
+      // Redirect to logout success page
+      router.push('/logout-success')
     }
 
     onMounted(() => {

@@ -153,6 +153,9 @@ export const useAuthStore = defineStore('auth', () => {
     localStorage.removeItem('token')
     localStorage.removeItem('user')
     localStorage.removeItem('rememberMe')
+    
+    // Return success status for components to handle navigation
+    return true
   }
 
   const checkAuth = async () => {
