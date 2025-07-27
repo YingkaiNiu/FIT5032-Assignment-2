@@ -18,6 +18,12 @@
               <router-link class="nav-link" to="/resources">Resources</router-link>
             </li>
             <li class="nav-item">
+              <router-link class="nav-link" to="/products">Services</router-link>
+            </li>
+            <li class="nav-item">
+              <router-link class="nav-link" to="/reviews">Reviews</router-link>
+            </li>
+            <li class="nav-item">
               <router-link class="nav-link" to="/about">About</router-link>
             </li>
             <li class="nav-item">

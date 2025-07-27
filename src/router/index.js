@@ -8,6 +8,8 @@ import Services from '../views/Services.vue'
 import About from '../views/About.vue'
 import Contact from '../views/Contact.vue'
 import Resources from '../views/Resources.vue'
+import Products from '../views/Products.vue'
+import Reviews from '../views/Reviews.vue'
 import LogoutSuccess from '../views/LogoutSuccess.vue'
 
 const routes = [
@@ -64,6 +66,16 @@ const routes = [
     path: '/resources',
     name: 'Resources',
     component: Resources
+  },
+  {
+    path: '/products',
+    name: 'Products',
+    component: Products
+  },
+  {
+    path: '/reviews',
+    name: 'Reviews',
+    component: Reviews
   }
 ]
 
