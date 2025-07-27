@@ -2,7 +2,7 @@
   <div id="app">
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
       <div class="container">
-        <router-link class="navbar-brand" to="/">FIT5032 Web App</router-link>
+        <router-link class="navbar-brand" to="/">Elderly Health Support</router-link>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
           <span class="navbar-toggler-icon"></span>
         </button>
@@ -11,14 +11,26 @@
             <li class="nav-item">
               <router-link class="nav-link" to="/">Home</router-link>
             </li>
+            <li class="nav-item">
+              <router-link class="nav-link" to="/services">Services</router-link>
+            </li>
+            <li class="nav-item">
+              <router-link class="nav-link" to="/resources">Resources</router-link>
+            </li>
+            <li class="nav-item">
+              <router-link class="nav-link" to="/about">About</router-link>
+            </li>
+            <li class="nav-item">
+              <router-link class="nav-link" to="/contact">Contact</router-link>
+            </li>
+            <li class="nav-item" v-if="isAuthenticated">
+              <router-link class="nav-link" to="/appointments">Appointments</router-link>
+            </li>
             <li class="nav-item" v-if="isAuthenticated">
               <router-link class="nav-link" to="/dashboard">Dashboard</router-link>
             </li>
             <li class="nav-item" v-if="isAuthenticated && userRole === 'admin'">
               <router-link class="nav-link" to="/admin">Admin Panel</router-link>
-            </li>
-            <li class="nav-item" v-if="isAuthenticated">
-              <router-link class="nav-link" to="/products">Products</router-link>
             </li>
           </ul>
           <ul class="navbar-nav">
@@ -42,7 +54,7 @@
 
     <footer class="bg-dark text-light text-center py-3 mt-5">
       <div class="container">
-        <p>&copy; 2024 FIT5032 Web Application. All rights reserved.</p>
+        <p>&copy; 2024 Elderly Health Support Charity. All rights reserved.</p>
       </div>
     </footer>
   </div>

@@ -4,8 +4,10 @@ import Login from '../views/Login.vue'
 import Register from '../views/Register.vue'
 import Dashboard from '../views/Dashboard.vue'
 import AdminPanel from '../views/AdminPanel.vue'
-import Products from '../views/Products.vue'
-import ProductDetail from '../views/ProductDetail.vue'
+import Services from '../views/Services.vue'
+import About from '../views/About.vue'
+import Contact from '../views/Contact.vue'
+import Resources from '../views/Resources.vue'
 
 const routes = [
   {
@@ -38,15 +40,24 @@ const routes = [
     meta: { requiresAuth: true, requiresAdmin: true }
   },
   {
-    path: '/products',
-    name: 'Products',
-    component: Products
+    path: '/services',
+    name: 'Services',
+    component: Services
   },
   {
-    path: '/products/:id',
-    name: 'ProductDetail',
-    component: ProductDetail,
-    props: true
+    path: '/about',
+    name: 'About',
+    component: About
+  },
+  {
+    path: '/contact',
+    name: 'Contact',
+    component: Contact
+  },
+  {
+    path: '/resources',
+    name: 'Resources',
+    component: Resources
   }
 ]
 

@@ -1,6 +1,6 @@
-# FIT5032 Web Application
+# Elderly Health Support - Health Charity Web Application
 
-A modern Vue.js web application built for FIT5032 Assignment 2, demonstrating advanced web development concepts including authentication, role-based access control, and dynamic data management.
+A modern Vue.js web application built for a distinguished health charity, dedicated to supporting vulnerable elderly populations through innovative technology solutions. This application demonstrates advanced web development concepts including authentication, role-based access control, and comprehensive health service management.
 
 ## Features
 
@@ -11,38 +11,43 @@ A modern Vue.js web application built for FIT5032 Assignment 2, demonstrating ad
   - Password reset functionality
   - Session management with JWT tokens
   - Role-based access control (User/Admin)
+  - Firebase Auth integration ready
 
 - ✅ **Responsive Design**
-  - Mobile-first responsive layout
+  - Mobile-first responsive layout optimized for elderly users
   - Bootstrap 5 framework integration
   - Cross-browser compatibility
   - Modern UI/UX design principles
+  - Large text and high contrast for accessibility
 
 - ✅ **Navigation & Routing**
   - Vue Router implementation
   - Protected routes with authentication guards
   - Dynamic navigation based on user role
   - Breadcrumb navigation
+  - Simple navigation structure for elderly users
 
 ### Category B: Advanced Features
-- ✅ **Dashboard & Analytics**
-  - Interactive dashboard with statistics
-  - Real-time data visualization
-  - User activity tracking
-  - System status monitoring
+- ✅ **Health Services Management**
+  - Comprehensive health service catalog
+  - Service locator with interactive map
+  - Appointment booking system
+  - Service categories and filtering
+  - Emergency services information
 
-- ✅ **Product Management System**
-  - Product catalog with search and filtering
-  - Product details with image gallery
-  - Rating and review system
-  - Stock management
-  - Category-based organization
+- ✅ **Health Resources System**
+  - Educational materials and health guides
+  - Wellness tips and daily health advice
+  - Resource search and filtering
+  - Multiple format support (PDF, Video, Articles)
+  - Emergency health information
 
 - ✅ **Admin Panel**
   - User management interface
-  - Product administration
+  - Service administration
   - System settings configuration
   - Analytics and reporting tools
+  - Appointment management
 
 ### Category C: Enhanced Functionality
 - ✅ **Advanced UI Components**
@@ -51,18 +56,21 @@ A modern Vue.js web application built for FIT5032 Assignment 2, demonstrating ad
   - Interactive charts and graphs
   - Toast notifications
   - Loading states and error handling
+  - Elderly-friendly interface design
 
 - ✅ **Data Management**
   - State management with Pinia
-  - API integration patterns
+  - API integration patterns (Firestore ready)
   - Data persistence with localStorage
   - Real-time data updates
+  - CSV/PDF export capabilities
 
 - ✅ **Security Features**
   - Input validation and sanitization
   - CSRF protection
   - Secure authentication flow
   - Role-based permissions
+  - WCAG 2.1 AA accessibility compliance
 
 ## Technology Stack
 
@@ -132,17 +140,24 @@ The application includes mock authentication with the following test accounts:
 
 ### Features Overview
 
-1. **Home Page**: Landing page with application overview
-2. **Login/Register**: User authentication forms
-3. **Dashboard**: User dashboard with statistics and activities
-4. **Products**: Product catalog with search and filtering
-5. **Product Details**: Detailed product view with reviews
-6. **Admin Panel**: Administrative interface (admin only)
+1. **Home Page**: Landing page with health charity mission and services
+2. **Services**: Comprehensive health service catalog with interactive map
+3. **Resources**: Health guides, educational materials, and wellness tips
+4. **About**: Information about the charity's mission and impact
+5. **Contact**: Contact form with email integration and location map
+6. **Login/Register**: User authentication forms
+7. **Dashboard**: User dashboard with health statistics and appointments
+8. **Admin Panel**: Administrative interface for service management (admin only)
 
 ### Role-Based Access
 
-- **Regular Users**: Can view products, manage profile, access dashboard
-- **Administrators**: Full access including user management, system settings
+- **Regular Users**: Can view services, book appointments, access health resources, manage profile
+- **Administrators**: Full access including user management, service administration, system settings
+
+### Target Audience
+
+- **Primary**: Elderly individuals (aged 65+) with limited technical skills
+- **Secondary**: Caregivers (aged 30-50) supporting elderly family members
 
 ## Development
 
