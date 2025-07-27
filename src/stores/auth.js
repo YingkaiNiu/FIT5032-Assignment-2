@@ -1,0 +1,256 @@
+import { defineStore } from 'pinia'
+import { ref, computed } from 'vue'
+
+export const useAuthStore = defineStore('auth', () => {
+  // State
+  const user = ref(null)
+  const token = ref(localStorage.getItem('token') || null)
+  const loading = ref(false)
+  const error = ref(null)
+
+  // Getters
+  const isAuthenticated = computed(() => !!token.value && !!user.value)
+  const isAdmin = computed(() => user.value?.role === 'admin')
+  const userFullName = computed(() => {
+    if (!user.value) return ''
+    return `${user.value.firstName} ${user.value.lastName}`
+  })
+
+  // Actions
+  const login = async (credentials) => {
+    loading.value = true
+    error.value = null
+    
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
+      // Mock authentication
+      if (credentials.email === 'admin@example.com' && credentials.password === 'admin123') {
+        const mockUser = {
+          id: 1,
+          firstName: 'Admin',
+          lastName: 'User',
+          email: credentials.email,
+          role: 'admin',
+          createdAt: new Date('2024-01-01')
+        }
+        const mockToken = 'mock-jwt-token-' + Date.now()
+        
+        user.value = mockUser
+        token.value = mockToken
+        localStorage.setItem('token', mockToken)
+        localStorage.setItem('user', JSON.stringify(mockUser))
+        
+        return mockUser
+      } else if (credentials.email === 'user@example.com' && credentials.password === 'user123') {
+        const mockUser = {
+          id: 2,
+          firstName: 'Regular',
+          lastName: 'User',
+          email: credentials.email,
+          role: 'user',
+          createdAt: new Date('2024-01-15')
+        }
+        const mockToken = 'mock-jwt-token-' + Date.now()
+        
+        user.value = mockUser
+        token.value = mockToken
+        localStorage.setItem('token', mockToken)
+        localStorage.setItem('user', JSON.stringify(mockUser))
+        
+        return mockUser
+      } else {
+        throw new Error('Invalid email or password')
+      }
+    } catch (err) {
+      error.value = err.message
+      throw err
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const register = async (userData) => {
+    loading.value = true
+    error.value = null
+    
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
+      // Mock registration
+      const newUser = {
+        id: Date.now(),
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        email: userData.email,
+        role: userData.role || 'user',
+        createdAt: new Date()
+      }
+      
+      const mockToken = 'mock-jwt-token-' + Date.now()
+      
+      user.value = newUser
+      token.value = mockToken
+      localStorage.setItem('token', mockToken)
+      localStorage.setItem('user', JSON.stringify(newUser))
+      
+      return newUser
+    } catch (err) {
+      error.value = err.message
+      throw err
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const logout = () => {
+    user.value = null
+    token.value = null
+    error.value = null
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
+  }
+
+  const checkAuth = async () => {
+    const storedToken = localStorage.getItem('token')
+    const storedUser = localStorage.getItem('user')
+    
+    if (storedToken && storedUser) {
+      try {
+        // Simulate token validation
+        await new Promise(resolve => setTimeout(resolve, 500))
+        
+        token.value = storedToken
+        user.value = JSON.parse(storedUser)
+      } catch (err) {
+        logout()
+      }
+    }
+  }
+
+  const updateProfile = async (profileData) => {
+    loading.value = true
+    error.value = null
+    
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
+      // Update user data
+      user.value = {
+        ...user.value,
+        ...profileData
+      }
+      
+      localStorage.setItem('user', JSON.stringify(user.value))
+      
+      return user.value
+    } catch (err) {
+      error.value = err.message
+      throw err
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const changePassword = async (passwordData) => {
+    loading.value = true
+    error.value = null
+    
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
+      // Mock password change
+      console.log('Password changed successfully')
+    } catch (err) {
+      error.value = err.message
+      throw err
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const forgotPassword = async (email) => {
+    loading.value = true
+    error.value = null
+    
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
+      // Mock password reset
+      console.log('Password reset email sent to:', email)
+    } catch (err) {
+      error.value = err.message
+      throw err
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const resetPassword = async (resetData) => {
+    loading.value = true
+    error.value = null
+    
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
+      // Mock password reset
+      console.log('Password reset successfully')
+    } catch (err) {
+      error.value = err.message
+      throw err
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const refreshToken = async () => {
+    try {
+      // Simulate token refresh
+      await new Promise(resolve => setTimeout(resolve, 500))
+      
+      const newToken = 'mock-jwt-token-' + Date.now()
+      token.value = newToken
+      localStorage.setItem('token', newToken)
+      
+      return newToken
+    } catch (err) {
+      logout()
+      throw err
+    }
+  }
+
+  const clearError = () => {
+    error.value = null
+  }
+
+  return {
+    // State
+    user,
+    token,
+    loading,
+    error,
+    
+    // Getters
+    isAuthenticated,
+    isAdmin,
+    userFullName,
+    
+    // Actions
+    login,
+    register,
+    logout,
+    checkAuth,
+    updateProfile,
+    changePassword,
+    forgotPassword,
+    resetPassword,
+    refreshToken,
+    clearError
+  }
+}) 
