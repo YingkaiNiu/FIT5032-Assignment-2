@@ -7,6 +7,17 @@ export const useAuthStore = defineStore('auth', () => {
   const token = ref(localStorage.getItem('token') || null)
   const loading = ref(false)
   const error = ref(null)
+  
+  // Get registered users from localStorage
+  const getRegisteredUsers = () => {
+    const users = localStorage.getItem('registeredUsers')
+    return users ? JSON.parse(users) : []
+  }
+  
+  // Save registered users to localStorage
+  const saveRegisteredUsers = (users) => {
+    localStorage.setItem('registeredUsers', JSON.stringify(users))
+  }
 
   // Getters
   const isAuthenticated = computed(() => !!token.value && !!user.value)
@@ -25,7 +36,24 @@ export const useAuthStore = defineStore('auth', () => {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000))
       
-      // Mock authentication
+      // Check registered users first
+      const registeredUsers = getRegisteredUsers()
+      const registeredUser = registeredUsers.find(u => 
+        u.email === credentials.email && u.password === credentials.password
+      )
+      
+      if (registeredUser) {
+        const mockToken = 'mock-jwt-token-' + Date.now()
+        
+        user.value = registeredUser
+        token.value = mockToken
+        localStorage.setItem('token', mockToken)
+        localStorage.setItem('user', JSON.stringify(registeredUser))
+        
+        return registeredUser
+      }
+      
+      // Fallback to mock authentication for demo accounts
       if (credentials.email === 'admin@example.com' && credentials.password === 'admin123') {
         const mockUser = {
           id: 1,
@@ -79,15 +107,28 @@ export const useAuthStore = defineStore('auth', () => {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000))
       
-      // Mock registration
+      // Check if email already exists
+      const registeredUsers = getRegisteredUsers()
+      const existingUser = registeredUsers.find(u => u.email === userData.email)
+      
+      if (existingUser) {
+        throw new Error('Email already registered')
+      }
+      
+      // Create new user
       const newUser = {
         id: Date.now(),
         firstName: userData.firstName,
         lastName: userData.lastName,
         email: userData.email,
+        password: userData.password, // Store password for login verification
         role: userData.role || 'user',
         createdAt: new Date()
       }
+      
+      // Save to registered users
+      registeredUsers.push(newUser)
+      saveRegisteredUsers(registeredUsers)
       
       const mockToken = 'mock-jwt-token-' + Date.now()
       
@@ -111,13 +152,16 @@ export const useAuthStore = defineStore('auth', () => {
     error.value = null
     localStorage.removeItem('token')
     localStorage.removeItem('user')
+    localStorage.removeItem('rememberMe')
   }
 
   const checkAuth = async () => {
     const storedToken = localStorage.getItem('token')
     const storedUser = localStorage.getItem('user')
+    const rememberMe = localStorage.getItem('rememberMe')
     
-    if (storedToken && storedUser) {
+    // Only restore session if user chose "Remember me"
+    if (storedToken && storedUser && rememberMe === 'true') {
       try {
         // Simulate token validation
         await new Promise(resolve => setTimeout(resolve, 500))
@@ -127,6 +171,9 @@ export const useAuthStore = defineStore('auth', () => {
       } catch (err) {
         logout()
       }
+    } else if (storedToken && storedUser && !rememberMe) {
+      // Clear session if user didn't choose "Remember me"
+      logout()
     }
   }
 

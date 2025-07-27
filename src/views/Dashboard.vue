@@ -16,6 +16,9 @@
               <button class="btn btn-primary" @click="exportData">
                 <i class="bi bi-download"></i> Export
               </button>
+              <button class="btn btn-outline-danger" @click="logout">
+                <i class="bi bi-box-arrow-right"></i> Logout
+              </button>
             </div>
           </div>
         </div>
@@ -321,6 +324,12 @@ export default {
       console.log('Showing settings...')
     }
 
+    const logout = () => {
+      authStore.logout()
+      // Optionally redirect to login page
+      // router.push('/login')
+    }
+
     onMounted(() => {
       loadDashboardData()
     })
@@ -339,7 +348,8 @@ export default {
       viewAllActivities,
       exportActivities,
       generateReport,
-      showSettings
+      showSettings,
+      logout
     }
   }
 }

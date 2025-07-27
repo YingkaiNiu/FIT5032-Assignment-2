@@ -40,8 +40,15 @@
             <li class="nav-item" v-if="!isAuthenticated">
               <router-link class="nav-link" to="/register">Register</router-link>
             </li>
-            <li class="nav-item" v-if="isAuthenticated">
-              <a class="nav-link" href="#" @click="logout">Logout</a>
+            <li class="nav-item dropdown" v-if="isAuthenticated">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                <i class="bi bi-person-circle me-1"></i>{{ userFullName || 'User' }}
+              </a>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="#" @click="logout">
+                  <i class="bi bi-box-arrow-right me-2"></i>Logout
+                </a></li>
+              </ul>
             </li>
           </ul>
         </div>
@@ -70,30 +77,59 @@ export default {
     const router = useRouter()
     const isAuthenticated = ref(false)
     const userRole = ref('')
+    const userFullName = ref('')
 
     const checkAuth = () => {
-      const token = localStorage.getItem('authToken')
-      const role = localStorage.getItem('userRole')
-      isAuthenticated.value = !!token
-      userRole.value = role || ''
+      const token = localStorage.getItem('token')
+      const user = localStorage.getItem('user')
+      
+      if (token && user) {
+        try {
+          const userData = JSON.parse(user)
+          isAuthenticated.value = true
+          userRole.value = userData.role || ''
+          userFullName.value = `${userData.firstName} ${userData.lastName}`
+        } catch (e) {
+          console.error('Error parsing user data:', e)
+          clearAuth()
+        }
+      } else {
+        clearAuth()
+      }
+    }
+
+    const clearAuth = () => {
+      isAuthenticated.value = false
+      userRole.value = ''
+      userFullName.value = ''
     }
 
     const logout = () => {
-      localStorage.removeItem('authToken')
-      localStorage.removeItem('userRole')
-      localStorage.removeItem('userData')
-      isAuthenticated.value = false
-      userRole.value = ''
+      // Clear all authentication data
+      localStorage.removeItem('token')
+      localStorage.removeItem('user')
+      localStorage.removeItem('rememberMe')
+      
+      // Clear auth state
+      clearAuth()
+      
+      // Show logout message
+      alert('您已成功退出登录！')
+      
+      // Redirect to login page
       router.push('/login')
     }
 
     onMounted(() => {
       checkAuth()
+      // Check auth status every time the app loads
+      window.addEventListener('storage', checkAuth)
     })
 
     return {
       isAuthenticated,
       userRole,
+      userFullName,
       logout
     }
   }

@@ -68,8 +68,19 @@ const router = createRouter({
 
 // Navigation guards
 router.beforeEach((to, from, next) => {
-  const isAuthenticated = !!localStorage.getItem('authToken')
-  const userRole = localStorage.getItem('userRole')
+  const token = localStorage.getItem('token')
+  const user = localStorage.getItem('user')
+  const isAuthenticated = !!token && !!user
+  
+  let userRole = null
+  if (user) {
+    try {
+      const userData = JSON.parse(user)
+      userRole = userData.role
+    } catch (e) {
+      console.error('Error parsing user data:', e)
+    }
+  }
 
   // Check if route requires authentication
   if (to.meta.requiresAuth && !isAuthenticated) {

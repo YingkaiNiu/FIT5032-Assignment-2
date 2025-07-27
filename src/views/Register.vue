@@ -9,7 +9,14 @@
               <p class="text-muted">Join our community today</p>
             </div>
 
-            <form @submit.prevent="handleRegister" novalidate>
+            <!-- Success Message -->
+            <div v-if="success" class="alert alert-success text-center mb-4">
+              <i class="bi bi-check-circle me-2"></i>
+              <strong>Registration Successful!</strong><br>
+              Welcome to Elderly Health Support. You will be redirected to your dashboard shortly.
+            </div>
+
+            <form @submit.prevent="handleRegister" novalidate v-if="!success">
               <!-- Name Fields -->
               <div class="row">
                 <div class="col-md-6 mb-3">
@@ -145,6 +152,7 @@ export default {
     const authStore = useAuthStore()
     
     const loading = ref(false)
+    const success = ref(false)
     const errors = reactive({})
     
     const form = reactive({
@@ -157,50 +165,64 @@ export default {
     })
 
     const validateForm = () => {
-      errors.value = {}
+      // Clear previous errors
+      Object.keys(errors).forEach(key => delete errors[key])
+      
+      let isValid = true
       
       // First Name validation
       if (!form.firstName.trim()) {
         errors.firstName = 'First name is required'
+        isValid = false
       } else if (form.firstName.length < 2) {
         errors.firstName = 'First name must be at least 2 characters'
+        isValid = false
       }
       
       // Last Name validation
       if (!form.lastName.trim()) {
         errors.lastName = 'Last name is required'
+        isValid = false
       } else if (form.lastName.length < 2) {
         errors.lastName = 'Last name must be at least 2 characters'
+        isValid = false
       }
       
       // Email validation
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
       if (!form.email) {
         errors.email = 'Email is required'
+        isValid = false
       } else if (!emailRegex.test(form.email)) {
         errors.email = 'Please enter a valid email address'
+        isValid = false
       }
       
       // Password validation
       if (!form.password) {
         errors.password = 'Password is required'
+        isValid = false
       } else if (form.password.length < 6) {
         errors.password = 'Password must be at least 6 characters'
+        isValid = false
       }
       
       // Confirm Password validation
       if (!form.confirmPassword) {
         errors.confirmPassword = 'Please confirm your password'
+        isValid = false
       } else if (form.password !== form.confirmPassword) {
         errors.confirmPassword = 'Passwords do not match'
+        isValid = false
       }
       
       // Role validation
       if (!form.role) {
         errors.role = 'Please select an account type'
+        isValid = false
       }
       
-      return Object.keys(errors).length === 0
+      return isValid
     }
 
     const handleRegister = async () => {
@@ -218,12 +240,21 @@ export default {
         }
         
         await authStore.register(userData)
-        router.push('/dashboard')
+        
+        // Show success state
+        success.value = true
+        
+        // Redirect to dashboard after 3 seconds
+        setTimeout(() => {
+          router.push('/dashboard')
+        }, 3000)
       } catch (error) {
         console.error('Registration error:', error)
         // Handle specific error cases
         if (error.message.includes('email')) {
           errors.email = 'This email is already registered'
+        } else {
+          alert('Registration failed. Please try again.')
         }
       } finally {
         loading.value = false
@@ -234,6 +265,7 @@ export default {
       form,
       errors,
       loading,
+      success,
       handleRegister
     }
   }

@@ -128,15 +128,17 @@ src/
 
 ### Authentication
 
-The application includes mock authentication with the following test accounts:
+The application includes both mock authentication and user registration functionality:
 
-**Admin User:**
-- Email: `admin@example.com`
-- Password: `admin123`
+**Demo Accounts:**
+- **Admin User**: `admin@example.com` / `admin123`
+- **Regular User**: `user@example.com` / `user123`
 
-**Regular User:**
-- Email: `user@example.com`
-- Password: `user123`
+**New User Registration:**
+- Users can create new accounts through the registration form
+- New accounts are stored locally and can be used for login
+- Registration includes form validation and success feedback
+- See `TESTING.md` for detailed testing instructions
 
 ### Features Overview
 
