@@ -104,7 +104,7 @@
         <div class="card-header d-flex justify-content-between align-items-center">
           <h5>Appointment Calendar</h5>
           <div class="calendar-controls">
-            <button @click="today" class="btn btn-outline-secondary btn-sm">Today</button>
+            <button @click="goToToday" class="btn btn-outline-secondary btn-sm">Today</button>
             <button @click="prev" class="btn btn-outline-secondary btn-sm">Previous</button>
             <button @click="next" class="btn btn-outline-secondary btn-sm">Next</button>
           </div>
@@ -363,7 +363,7 @@ const getServiceColor = (serviceType) => {
 }
 
 // Calendar navigation methods
-const today = () => {
+const goToToday = () => {
   calendar.value?.today()
 }
 

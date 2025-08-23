@@ -7,6 +7,13 @@ A comprehensive Vue.js web application for elderly health support services, feat
 - 🔐 **Firebase Authentication** - User registration and login
 - 📧 **Email Service** - Send emails with attachments using EmailJS
 - 📊 **Interactive Tables** - Sortable, searchable, and paginated data tables
+- 🗺️ **Health Map** - Google Maps integration for health services
+- 📤 **Data Export** - CSV and PDF export functionality
+- ♿ **Accessibility** - WCAG 2.1 AA compliance
+- 🤖 **AI Health Assistant** - Intelligent health consultation
+- 📈 **Health Dashboard** - Real-time analytics and visualization
+- 📅 **Smart Scheduler** - Appointment management system
+- 📱 **Offline Records** - Offline-capable health record management
 - 🎨 **Modern UI** - Bootstrap-based responsive design
 - 🚀 **Cloud Deployment** - Deployed on Vercel
 
@@ -18,6 +25,11 @@ A comprehensive Vue.js web application for elderly health support services, feat
 - Bootstrap 5
 - Firebase Authentication
 - EmailJS
+- Google Maps API
+- Chart.js & vue-chartjs
+- FullCalendar
+- Gemini AI API
+- jsPDF & jspdf-autotable
 - Vite
 
 ## Business Requirements Implemented
@@ -26,6 +38,10 @@ A comprehensive Vue.js web application for elderly health support services, feat
 - **D2**: Email Service with Attachments (EmailJS)
 - **D3**: Interactive Table Data (Sort, Search, Pagination)
 - **D4**: Cloud Deployment (Vercel)
+- **E2**: Map Integration (Google Maps API)
+- **E4**: Data Export (CSV and PDF)
+- **WCAG 2.1 AA**: Accessibility Compliance
+- **F**: Innovation Features (AI Assistant, Dashboard, Scheduler, Offline Records)
 
 ## Getting Started
 
@@ -98,6 +114,12 @@ src/
 - Service ID: `service_o0yplm6`
 - Template ID: `template_h33dq1e`
 - Public Key: `Km2ke5da8jX_fN9Bu`
+
+### Google Maps Configuration
+- API Key: `AIzaSyAye5w6yoFt_O5FwUBaEaZDqCtQ9i5isuY`
+
+### Gemini AI Configuration
+- API Key: `YOUR_GEMINI_API_KEY` (Replace with your actual key)
 
 ## License
 
