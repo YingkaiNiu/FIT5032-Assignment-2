@@ -114,10 +114,9 @@ src/
 ### EmailJS Configuration
 - Service ID: `service_o0yplm6`
 - Template ID: `template_h33dq1e`
-- Public Key: `Km2ke5da8jX_fN9Bu`
 
 ### Google Maps Configuration
-- API Key: `AIzaSyAye5w6yoFt_O5FwUBaEaZDqCtQ9i5isuY`
+- Maps integration for health services location display
 
 
 

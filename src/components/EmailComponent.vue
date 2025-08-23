@@ -339,7 +339,7 @@ const sendEmail = async () => {
   
   try {
     // Initialize EmailJS
-    emailjs.init('YOUR_EMAILJS_PUBLIC_KEY')
+    emailjs.init('Km2ke5da8jX_fN9Bu')
     
     // Prepare template parameters
     const templateParams = {
