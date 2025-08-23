@@ -52,57 +52,7 @@
     </div>
 
     <div class="map-wrapper">
-      <GoogleMap
-        :api-key="googleMapsApiKey"
-        :center="mapCenter"
-        :zoom="mapZoom"
-        :options="mapOptions"
-        @click="handleMapClick"
-        style="width: 100%; height: 500px;"
-      >
-        <!-- User Location Marker -->
-        <Marker
-          v-if="userLocation"
-          :options="{
-            position: userLocation,
-            icon: {
-              url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <circle cx="12" cy="12" r="8" fill="#4285F4" stroke="white" stroke-width="2"/>
-                  <circle cx="12" cy="12" r="3" fill="white"/>
-                </svg>
-              `),
-              scaledSize: { width: 24, height: 24 }
-            },
-            title: 'Your Location'
-          }"
-        />
-
-        <!-- Health Service Markers -->
-        <Marker
-          v-for="service in filteredServices"
-          :key="service.id"
-          :options="{
-            position: service.position,
-            icon: {
-              url: getMarkerIcon(service.category),
-              scaledSize: { width: 32, height: 32 }
-            },
-            title: service.name
-          }"
-          @click="showServiceInfo(service)"
-        />
-
-        <!-- Info Window -->
-        <InfoWindow
-          v-if="selectedService"
-          :options="{
-            position: selectedService.position,
-            content: getInfoWindowContent(selectedService)
-          }"
-          @closeclick="selectedService = null"
-        />
-      </GoogleMap>
+      <div id="map" style="width: 100%; height: 500px;"></div>
     </div>
 
     <!-- Service List -->
@@ -138,8 +88,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { GoogleMap, Marker, InfoWindow } from 'vue3-google-maps'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 
 // Google Maps API Key
 const googleMapsApiKey = 'AIzaSyAye5w6yoFt_O5FwUBaEaZDqCtQ9i5isuY'
@@ -152,16 +101,11 @@ const selectedService = ref(null)
 const searchQuery = ref('')
 const selectedCategory = ref('all')
 
-// Map options
-const mapOptions = {
-  zoomControl: true,
-  mapTypeControl: true,
-  scaleControl: true,
-  streetViewControl: true,
-  rotateControl: true,
-  fullscreenControl: true,
-  disableDefaultUi: false
-}
+// Google Maps objects
+let map = null
+let markers = []
+let infoWindow = null
+let userMarker = null
 
 // Sample health services data
 const healthServices = ref([
@@ -239,30 +183,6 @@ const filteredServices = computed(() => {
 })
 
 // Methods
-const getMarkerIcon = (category) => {
-  const icons = {
-    hospital: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="3" y="3" width="18" height="18" rx="2" fill="#FF4444"/>
-        <path d="M8 12h8M12 8v8" stroke="white" stroke-width="2" stroke-linecap="round"/>
-      </svg>
-    `),
-    pharmacy: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="3" y="3" width="18" height="18" rx="2" fill="#4CAF50"/>
-        <path d="M9 12l2 2 4-4" stroke="white" stroke-width="2" stroke-linecap="round"/>
-      </svg>
-    `),
-    clinic: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="3" y="3" width="18" height="18" rx="2" fill="#2196F3"/>
-        <circle cx="12" cy="12" r="3" fill="white"/>
-      </svg>
-    `)
-  }
-  return icons[category] || icons.hospital
-}
-
 const getServiceIcon = (category) => {
   const icons = {
     hospital: '🏥',
@@ -270,6 +190,39 @@ const getServiceIcon = (category) => {
     clinic: '🏥'
   }
   return icons[category] || '🏥'
+}
+
+const getMarkerIcon = (category) => {
+  const icons = {
+    hospital: {
+      url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="3" width="18" height="18" rx="2" fill="#FF4444"/>
+          <path d="M8 12h8M12 8v8" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      `),
+      scaledSize: new google.maps.Size(32, 32)
+    },
+    pharmacy: {
+      url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="3" width="18" height="18" rx="2" fill="#4CAF50"/>
+          <path d="M9 12l2 2 4-4" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      `),
+      scaledSize: new google.maps.Size(32, 32)
+    },
+    clinic: {
+      url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="3" width="18" height="18" rx="2" fill="#2196F3"/>
+          <circle cx="12" cy="12" r="3" fill="white"/>
+        </svg>
+      `),
+      scaledSize: new google.maps.Size(32, 32)
+    }
+  }
+  return icons[category] || icons.hospital
 }
 
 const getInfoWindowContent = (service) => {
@@ -290,32 +243,82 @@ const searchServices = () => {
 
 const filterByCategory = (category) => {
   selectedCategory.value = category
-}
-
-const showServiceInfo = (service) => {
-  selectedService.value = service
+  updateMarkers()
 }
 
 const selectService = (service) => {
   selectedService.value = service
-  mapCenter.value = service.position
-  mapZoom.value = 15
+  if (map) {
+    map.setCenter(service.position)
+    map.setZoom(15)
+    showServiceInfo(service)
+  }
 }
 
-const handleMapClick = (event) => {
-  selectedService.value = null
+const showServiceInfo = (service) => {
+  if (infoWindow && map) {
+    infoWindow.setContent(getInfoWindowContent(service))
+    infoWindow.setPosition(service.position)
+    infoWindow.open(map)
+  }
+}
+
+const updateMarkers = () => {
+  // Clear existing markers
+  markers.forEach(marker => marker.setMap(null))
+  markers = []
+
+  // Add new markers for filtered services
+  filteredServices.value.forEach(service => {
+    const marker = new google.maps.Marker({
+      position: service.position,
+      map: map,
+      title: service.name,
+      icon: getMarkerIcon(service.category)
+    })
+
+    marker.addListener('click', () => {
+      showServiceInfo(service)
+    })
+
+    markers.push(marker)
+  })
 }
 
 const getUserLocation = () => {
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        userLocation.value = {
+        const pos = {
           lat: position.coords.latitude,
           lng: position.coords.longitude
         }
-        mapCenter.value = userLocation.value
-        mapZoom.value = 14
+        userLocation.value = pos
+        
+        if (map) {
+          map.setCenter(pos)
+          map.setZoom(14)
+          
+          // Add user location marker
+          if (userMarker) {
+            userMarker.setMap(null)
+          }
+          
+          userMarker = new google.maps.Marker({
+            position: pos,
+            map: map,
+            title: 'Your Location',
+            icon: {
+              url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="12" cy="12" r="8" fill="#4285F4" stroke="white" stroke-width="2"/>
+                  <circle cx="12" cy="12" r="3" fill="white"/>
+                </svg>
+              `),
+              scaledSize: new google.maps.Size(24, 24)
+            }
+          })
+        }
       },
       (error) => {
         console.error('Error getting location:', error)
@@ -324,9 +327,64 @@ const getUserLocation = () => {
   }
 }
 
+const initMap = () => {
+  // Check if Google Maps is loaded
+  if (typeof google === 'undefined' || !google.maps) {
+    console.error('Google Maps not loaded')
+    return
+  }
+
+  // Initialize map
+  map = new google.maps.Map(document.getElementById('map'), {
+    center: mapCenter.value,
+    zoom: mapZoom.value,
+    zoomControl: true,
+    mapTypeControl: true,
+    scaleControl: true,
+    streetViewControl: true,
+    rotateControl: true,
+    fullscreenControl: true
+  })
+
+  // Initialize info window
+  infoWindow = new google.maps.InfoWindow()
+
+  // Add markers
+  updateMarkers()
+
+  // Get user location
+  getUserLocation()
+}
+
+const loadGoogleMaps = () => {
+  // Check if already loaded
+  if (typeof google !== 'undefined' && google.maps) {
+    initMap()
+    return
+  }
+
+  // Load Google Maps script
+  const script = document.createElement('script')
+  script.src = `https://maps.googleapis.com/maps/api/js?key=${googleMapsApiKey}&libraries=places`
+  script.async = true
+  script.defer = true
+  script.onload = initMap
+  document.head.appendChild(script)
+}
+
 // Lifecycle
 onMounted(() => {
-  getUserLocation()
+  loadGoogleMaps()
+})
+
+onUnmounted(() => {
+  // Clean up markers
+  if (markers.length > 0) {
+    markers.forEach(marker => marker.setMap(null))
+  }
+  if (userMarker) {
+    userMarker.setMap(null)
+  }
 })
 </script>
 
