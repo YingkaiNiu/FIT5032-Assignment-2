@@ -24,6 +24,12 @@
               <router-link class="nav-link" to="/reviews">Reviews</router-link>
             </li>
             <li class="nav-item">
+              <router-link class="nav-link" to="/email">Email Service</router-link>
+            </li>
+            <li class="nav-item">
+              <router-link class="nav-link" to="/tables">Interactive Tables</router-link>
+            </li>
+            <li class="nav-item">
               <router-link class="nav-link" to="/about">About</router-link>
             </li>
             <li class="nav-item">
@@ -45,6 +51,12 @@
             </li>
             <li class="nav-item" v-if="!isAuthenticated">
               <router-link class="nav-link" to="/register">Register</router-link>
+            </li>
+            <li class="nav-item" v-if="!isAuthenticated">
+              <router-link class="nav-link" to="/FireLogin">Firebase Login</router-link>
+            </li>
+            <li class="nav-item" v-if="!isAuthenticated">
+              <router-link class="nav-link" to="/FireRegister">Firebase Register</router-link>
             </li>
             <li class="nav-item dropdown" v-if="isAuthenticated">
               <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
@@ -88,6 +100,7 @@ export default {
     const checkAuth = () => {
       const token = localStorage.getItem('token')
       const user = localStorage.getItem('user')
+      const firebaseUser = localStorage.getItem('firebaseUser')
       
       if (token && user) {
         try {
@@ -97,6 +110,16 @@ export default {
           userFullName.value = `${userData.firstName} ${userData.lastName}`
         } catch (e) {
           console.error('Error parsing user data:', e)
+          clearAuth()
+        }
+      } else if (firebaseUser) {
+        try {
+          const userData = JSON.parse(firebaseUser)
+          isAuthenticated.value = true
+          userRole.value = userData.role || 'user'
+          userFullName.value = userData.email || 'Firebase User'
+        } catch (e) {
+          console.error('Error parsing Firebase user data:', e)
           clearAuth()
         }
       } else {
@@ -115,6 +138,7 @@ export default {
       // Clear all authentication data
       localStorage.removeItem('token')
       localStorage.removeItem('user')
+      localStorage.removeItem('firebaseUser')
       localStorage.removeItem('rememberMe')
       
       // Clear auth state

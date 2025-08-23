@@ -11,6 +11,10 @@ import Resources from '../views/Resources.vue'
 import Products from '../views/Products.vue'
 import Reviews from '../views/Reviews.vue'
 import LogoutSuccess from '../views/LogoutSuccess.vue'
+import FirebaseSigninView from '../views/FirebaseSigninView.vue'
+import FirebaseRegisterView from '../views/FirebaseRegisterView.vue'
+import EmailView from '../views/EmailView.vue'
+import TablesView from '../views/TablesView.vue'
 
 const routes = [
   {
@@ -29,6 +33,28 @@ const routes = [
     name: 'Register',
     component: Register,
     meta: { requiresGuest: true }
+  },
+  {
+    path: '/FireLogin',
+    name: 'FireLogin',
+    component: FirebaseSigninView,
+    meta: { requiresGuest: true }
+  },
+  {
+    path: '/FireRegister',
+    name: 'FireRegister',
+    component: FirebaseRegisterView,
+    meta: { requiresGuest: true }
+  },
+  {
+    path: '/email',
+    name: 'Email',
+    component: EmailView
+  },
+  {
+    path: '/tables',
+    name: 'Tables',
+    component: TablesView
   },
   {
     path: '/logout-success',
@@ -94,7 +120,8 @@ router.beforeEach((to, from, next) => {
 
   const token = localStorage.getItem('token')
   const user = localStorage.getItem('user')
-  const isAuthenticated = !!token && !!user
+  const firebaseUser = localStorage.getItem('firebaseUser')
+  const isAuthenticated = (!!token && !!user) || !!firebaseUser
   
   let userRole = null
   if (user) {
@@ -103,6 +130,13 @@ router.beforeEach((to, from, next) => {
       userRole = userData.role
     } catch (e) {
       console.error('Error parsing user data:', e)
+    }
+  } else if (firebaseUser) {
+    try {
+      const userData = JSON.parse(firebaseUser)
+      userRole = userData.role || 'user'
+    } catch (e) {
+      console.error('Error parsing Firebase user data:', e)
     }
   }
 
