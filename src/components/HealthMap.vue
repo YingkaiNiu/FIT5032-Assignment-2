@@ -146,6 +146,46 @@
       <div id="services-description" class="sr-only">
         {{ filteredServices.length }} health services found. Click on any service card to view it on the map.
       </div>
+      <!-- Export Controls -->
+      <div class="row mt-3">
+        <div class="col-12">
+          <div class="d-flex justify-content-between align-items-center">
+            <div class="export-info">
+              <span class="text-muted">
+                找到 {{ filteredServices.length }} 个健康服务
+              </span>
+            </div>
+            <div class="export-buttons">
+              <div class="btn-group" role="group" aria-label="Export options">
+                <button
+                  type="button"
+                  class="btn btn-outline-success"
+                  @click="exportData('csv')"
+                  @keydown.enter="exportData('csv')"
+                  @keydown.space="exportData('csv')"
+                  :disabled="isExporting"
+                  aria-label="Export health services to CSV format"
+                >
+                  <span aria-hidden="true">📊</span>
+                  <span class="ms-1">CSV</span>
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-outline-danger"
+                  @click="exportData('pdf')"
+                  @keydown.enter="exportData('pdf')"
+                  @keydown.space="exportData('pdf')"
+                  :disabled="isExporting"
+                  aria-label="Export health services to PDF format"
+                >
+                  <span aria-hidden="true">📄</span>
+                  <span class="ms-1">PDF</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Accessibility status -->
@@ -154,11 +194,19 @@
         Selected: {{ selectedService.name }} at {{ selectedService.address }}
       </span>
     </div>
+
+    <!-- Export Status Messages -->
+    <div v-if="exportStatus" class="alert mt-3" :class="exportStatusClass" role="alert" aria-live="polite">
+      <span v-if="exportStatus.type === 'success'" class="me-2" aria-hidden="true">✅</span>
+      <span v-else-if="exportStatus.type === 'error'" class="me-2" aria-hidden="true">⚠️</span>
+      {{ exportStatus.message }}
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { exportHealthServiceData } from '../utils/exportUtils'
 
 // Google Maps API Key
 const googleMapsApiKey = 'AIzaSyAye5w6yoFt_O5FwUBaEaZDqCtQ9i5isuY'
@@ -170,6 +218,10 @@ const userLocation = ref(null)
 const selectedService = ref(null)
 const searchQuery = ref('')
 const selectedCategory = ref('all')
+
+// Export state
+const isExporting = ref(false)
+const exportStatus = ref(null)
 
 // Google Maps objects
 let map = null
@@ -250,6 +302,11 @@ const filteredServices = computed(() => {
   }
 
   return filtered
+})
+
+const exportStatusClass = computed(() => {
+  if (!exportStatus.value) return ''
+  return exportStatus.value.type === 'success' ? 'alert-success' : 'alert-danger'
 })
 
 // Methods
@@ -459,6 +516,45 @@ const getUserLocation = () => {
         }
       }
     )
+  }
+}
+
+const exportData = async (format) => {
+  if (isExporting.value) return
+  
+  isExporting.value = true
+  exportStatus.value = null
+  
+  try {
+    // 导出当前筛选后的数据
+    const result = exportHealthServiceData(filteredServices.value, format)
+    
+    if (result.success) {
+      exportStatus.value = {
+        type: 'success',
+        message: `${format.toUpperCase()} 文件导出成功！`
+      }
+      
+      // 3秒后清除成功消息
+      setTimeout(() => {
+        exportStatus.value = null
+      }, 3000)
+    } else {
+      throw new Error(result.message)
+    }
+  } catch (error) {
+    console.error('Export error:', error)
+    exportStatus.value = {
+      type: 'error',
+      message: `导出失败: ${error.message}`
+    }
+    
+    // 5秒后清除错误消息
+    setTimeout(() => {
+      exportStatus.value = null
+    }, 5000)
+  } finally {
+    isExporting.value = false
   }
 }
 

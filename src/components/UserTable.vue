@@ -63,6 +63,47 @@
           </div>
         </div>
       </div>
+      
+      <!-- Export Controls -->
+      <div class="row mt-3">
+        <div class="col-12">
+          <div class="d-flex justify-content-between align-items-center">
+            <div class="export-info">
+              <span class="text-muted">
+                找到 {{ filteredUsers.length }} 条记录
+              </span>
+            </div>
+            <div class="export-buttons">
+              <div class="btn-group" role="group" aria-label="Export options">
+                <button
+                  type="button"
+                  class="btn btn-outline-success"
+                  @click="exportData('csv')"
+                  @keydown.enter="exportData('csv')"
+                  @keydown.space="exportData('csv')"
+                  :disabled="isExporting"
+                  aria-label="Export to CSV format"
+                >
+                  <span aria-hidden="true">📊</span>
+                  <span class="ms-1">CSV</span>
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-outline-danger"
+                  @click="exportData('pdf')"
+                  @keydown.enter="exportData('pdf')"
+                  @keydown.space="exportData('pdf')"
+                  :disabled="isExporting"
+                  aria-label="Export to PDF format"
+                >
+                  <span aria-hidden="true">📄</span>
+                  <span class="ms-1">PDF</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Table -->
@@ -323,11 +364,19 @@
     <div class="sr-only" aria-live="polite" aria-atomic="true">
       {{ filteredUsers.length }} users found. Page {{ currentPage + 1 }} of {{ totalPages }}.
     </div>
+
+    <!-- Export Status Messages -->
+    <div v-if="exportStatus" class="alert mt-3" :class="exportStatusClass" role="alert" aria-live="polite">
+      <span v-if="exportStatus.type === 'success'" class="me-2" aria-hidden="true">✅</span>
+      <span v-else-if="exportStatus.type === 'error'" class="me-2" aria-hidden="true">⚠️</span>
+      {{ exportStatus.message }}
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, watch } from 'vue'
+import { exportUserData } from '../utils/exportUtils'
 
 // Sample user data
 const users = ref([
@@ -357,6 +406,10 @@ const sortKey = ref('id')
 const sortOrder = ref('asc')
 const currentPage = ref(0)
 const itemsPerPage = 10
+
+// Export state
+const isExporting = ref(false)
+const exportStatus = ref(null)
 
 // Computed properties
 const filteredUsers = computed(() => {
@@ -456,6 +509,11 @@ const visiblePages = computed(() => {
   return pages
 })
 
+const exportStatusClass = computed(() => {
+  if (!exportStatus.value) return ''
+  return exportStatus.value.type === 'success' ? 'alert-success' : 'alert-danger'
+})
+
 // Methods
 const sort = (key) => {
   if (sortKey.value === key) {
@@ -507,6 +565,45 @@ const editUser = (user) => {
 const deleteUser = (user) => {
   console.log('Delete user:', user)
   // Implement delete functionality
+}
+
+const exportData = async (format) => {
+  if (isExporting.value) return
+  
+  isExporting.value = true
+  exportStatus.value = null
+  
+  try {
+    // 导出当前筛选后的数据
+    const result = exportUserData(filteredUsers.value, format)
+    
+    if (result.success) {
+      exportStatus.value = {
+        type: 'success',
+        message: `${format.toUpperCase()} 文件导出成功！`
+      }
+      
+      // 3秒后清除成功消息
+      setTimeout(() => {
+        exportStatus.value = null
+      }, 3000)
+    } else {
+      throw new Error(result.message)
+    }
+  } catch (error) {
+    console.error('Export error:', error)
+    exportStatus.value = {
+      type: 'error',
+      message: `导出失败: ${error.message}`
+    }
+    
+    // 5秒后清除错误消息
+    setTimeout(() => {
+      exportStatus.value = null
+    }, 5000)
+  } finally {
+    isExporting.value = false
+  }
 }
 
 // Watch for filter changes to reset pagination

@@ -1,380 +1,827 @@
 <template>
-  <div class="card">
-    <div class="card-header">
-      <h4>Service Records Table</h4>
-    </div>
-    <div class="card-body">
-      <!-- Global Search -->
-      <div class="row mb-3">
+  <div class="table-container" role="region" aria-labelledby="service-table-heading">
+    <h3 id="service-table-heading">Service Management Table</h3>
+    
+    <!-- Search and Controls -->
+    <div class="table-controls mb-3">
+      <div class="row">
         <div class="col-md-6">
-          <div class="input-group">
-            <span class="input-group-text">🔍</span>
-            <input 
-              type="text" 
-              class="form-control" 
-              placeholder="Search all columns..." 
-              v-model="globalSearch"
-            />
+          <label for="service-global-search" class="form-label">Global Search</label>
+          <input
+            id="service-global-search"
+            type="text"
+            class="form-control"
+            v-model="globalSearch"
+            placeholder="Search all columns..."
+            aria-describedby="service-global-search-help"
+          />
+          <div id="service-global-search-help" class="form-text">
+            Type to search across all service data
           </div>
         </div>
-        <div class="col-md-6 text-end">
-          <span class="text-muted">
-            Showing {{ paginatedData.length }} of {{ filteredData.length }} records
-          </span>
+        <div class="col-md-6">
+          <div class="row">
+            <div class="col-md-3">
+              <label for="service-name-filter" class="form-label">Service Filter</label>
+              <input
+                id="service-name-filter"
+                type="text"
+                class="form-control"
+                v-model="filters.serviceName"
+                placeholder="Filter by service..."
+                aria-describedby="service-name-filter-help"
+              />
+              <div id="service-name-filter-help" class="form-text">Filter by service name</div>
+            </div>
+            <div class="col-md-3">
+              <label for="category-filter" class="form-label">Category Filter</label>
+              <select
+                id="category-filter"
+                class="form-select"
+                v-model="filters.category"
+                aria-describedby="category-filter-help"
+              >
+                <option value="">All Categories</option>
+                <option value="consultation">Consultation</option>
+                <option value="treatment">Treatment</option>
+                <option value="support">Support</option>
+                <option value="maintenance">Maintenance</option>
+              </select>
+              <div id="category-filter-help" class="form-text">Filter by service category</div>
+            </div>
+            <div class="col-md-3">
+              <label for="status-filter" class="form-label">Status Filter</label>
+              <select
+                id="status-filter"
+                class="form-select"
+                v-model="filters.status"
+                aria-describedby="status-filter-help"
+              >
+                <option value="">All Status</option>
+                <option value="active">Active</option>
+                <option value="pending">Pending</option>
+                <option value="completed">Completed</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+              <div id="status-filter-help" class="form-text">Filter by service status</div>
+            </div>
+            <div class="col-md-3">
+              <label for="priority-filter" class="form-label">Priority Filter</label>
+              <select
+                id="priority-filter"
+                class="form-select"
+                v-model="filters.priority"
+                aria-describedby="priority-filter-help"
+              >
+                <option value="">All Priorities</option>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+              </select>
+              <div id="priority-filter-help" class="form-text">Filter by priority level</div>
+            </div>
+          </div>
         </div>
       </div>
-
-      <!-- Column Filters -->
-      <div class="row mb-3">
-        <div class="col-md-3">
-          <input 
-            type="text" 
-            class="form-control" 
-            placeholder="Filter by service name..." 
-            v-model="columnFilters.serviceName"
-          />
-        </div>
-        <div class="col-md-3">
-          <select class="form-select" v-model="columnFilters.category">
-            <option value="">All Categories</option>
-            <option value="healthcare">Healthcare</option>
-            <option value="transportation">Transportation</option>
-            <option value="social">Social</option>
-            <option value="education">Education</option>
-          </select>
-        </div>
-        <div class="col-md-3">
-          <select class="form-select" v-model="columnFilters.status">
-            <option value="">All Status</option>
-            <option value="completed">Completed</option>
-            <option value="in-progress">In Progress</option>
-            <option value="scheduled">Scheduled</option>
-            <option value="cancelled">Cancelled</option>
-          </select>
-        </div>
-        <div class="col-md-3">
-          <select class="form-select" v-model="columnFilters.priority">
-            <option value="">All Priorities</option>
-            <option value="high">High</option>
-            <option value="medium">Medium</option>
-            <option value="low">Low</option>
-          </select>
+      
+      <!-- Export Controls -->
+      <div class="row mt-3">
+        <div class="col-12">
+          <div class="d-flex justify-content-between align-items-center">
+            <div class="export-info">
+              <span class="text-muted">
+                找到 {{ filteredServices.length }} 条记录
+              </span>
+            </div>
+            <div class="export-buttons">
+              <div class="btn-group" role="group" aria-label="Export options">
+                <button
+                  type="button"
+                  class="btn btn-outline-success"
+                  @click="exportData('csv')"
+                  @keydown.enter="exportData('csv')"
+                  @keydown.space="exportData('csv')"
+                  :disabled="isExporting"
+                  aria-label="Export to CSV format"
+                >
+                  <span aria-hidden="true">📊</span>
+                  <span class="ms-1">CSV</span>
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-outline-danger"
+                  @click="exportData('pdf')"
+                  @keydown.enter="exportData('pdf')"
+                  @keydown.space="exportData('pdf')"
+                  :disabled="isExporting"
+                  aria-label="Export to PDF format"
+                >
+                  <span aria-hidden="true">📄</span>
+                  <span class="ms-1">PDF</span>
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
+    </div>
 
-      <!-- Table -->
-      <div class="table-responsive">
-        <table class="table table-striped table-hover">
-          <thead class="table-dark">
-            <tr>
-              <th @click="sort('id')" style="cursor: pointer;">
-                ID 
-                <span v-if="sortKey === 'id'">
-                  {{ sortOrders.id === 'asc' ? '↑' : '↓' }}
-                </span>
-              </th>
-              <th @click="sort('serviceName')" style="cursor: pointer;">
-                Service Name 
-                <span v-if="sortKey === 'serviceName'">
-                  {{ sortOrders.serviceName === 'asc' ? '↑' : '↓' }}
-                </span>
-              </th>
-              <th @click="sort('category')" style="cursor: pointer;">
-                Category 
-                <span v-if="sortKey === 'category'">
-                  {{ sortOrders.category === 'asc' ? '↑' : '↓' }}
-                </span>
-              </th>
-              <th @click="sort('clientName')" style="cursor: pointer;">
-                Client Name 
-                <span v-if="sortKey === 'clientName'">
-                  {{ sortOrders.clientName === 'asc' ? '↑' : '↓' }}
-                </span>
-              </th>
-              <th @click="sort('status')" style="cursor: pointer;">
-                Status 
-                <span v-if="sortKey === 'status'">
-                  {{ sortOrders.status === 'asc' ? '↑' : '↓' }}
-                </span>
-              </th>
-              <th @click="sort('priority')" style="cursor: pointer;">
-                Priority 
-                <span v-if="sortKey === 'priority'">
-                  {{ sortOrders.priority === 'asc' ? '↑' : '↓' }}
-                </span>
-              </th>
-              <th @click="sort('duration')" style="cursor: pointer;">
-                Duration (hrs) 
-                <span v-if="sortKey === 'duration'">
-                  {{ sortOrders.duration === 'asc' ? '↑' : '↓' }}
-                </span>
-              </th>
-              <th @click="sort('date')" style="cursor: pointer;">
-                Date 
-                <span v-if="sortKey === 'date'">
-                  {{ sortOrders.date === 'asc' ? '↑' : '↓' }}
-                </span>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="service in paginatedData" :key="service.id">
-              <td>{{ service.id }}</td>
-              <td>{{ service.serviceName }}</td>
-              <td>
-                <span :class="getCategoryBadgeClass(service.category)">
-                  {{ service.category }}
-                </span>
-              </td>
-              <td>{{ service.clientName }}</td>
-              <td>
-                <span :class="getStatusBadgeClass(service.status)">
-                  {{ service.status }}
-                </span>
-              </td>
-              <td>
-                <span :class="getPriorityBadgeClass(service.priority)">
-                  {{ service.priority }}
-                </span>
-              </td>
-              <td>{{ service.duration }}</td>
-              <td>{{ formatDate(service.date) }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <!-- Pagination -->
-      <div class="d-flex justify-content-between align-items-center">
-        <div>
-          <span class="text-muted">
-            Page {{ currentPage }} of {{ totalPages }}
-          </span>
-        </div>
-        <nav>
-          <ul class="pagination">
-            <li class="page-item" :class="{ disabled: currentPage === 1 }">
-              <a class="page-link" href="#" @click.prevent="changePage(currentPage - 1)">
-                Previous
-              </a>
-            </li>
-            <li 
-              v-for="page in visiblePages" 
-              :key="page" 
-              class="page-item"
-              :class="{ active: page === currentPage }"
+    <!-- Table -->
+    <div class="table-responsive">
+      <table 
+        class="table table-striped table-hover"
+        role="table"
+        aria-describedby="service-table-description"
+      >
+        <caption id="service-table-description" class="sr-only">
+          Service management table with sorting and filtering capabilities
+        </caption>
+        <thead>
+          <tr>
+            <th 
+              scope="col"
+              role="columnheader"
+              :aria-sort="getSortDirection('id')"
+              @click="sort('id')"
+              @keydown.enter="sort('id')"
+              @keydown.space="sort('id')"
+              tabindex="0"
+              class="sortable-header"
+              aria-label="Sort by ID"
             >
-              <a class="page-link" href="#" @click.prevent="changePage(page)">
-                {{ page }}
-              </a>
-            </li>
-            <li class="page-item" :class="{ disabled: currentPage === totalPages }">
-              <a class="page-link" href="#" @click.prevent="changePage(currentPage + 1)">
-                Next
-              </a>
-            </li>
-          </ul>
-        </nav>
+              ID
+              <span v-if="sortKey === 'id'" class="sort-indicator" aria-hidden="true">
+                {{ sortOrder === 'asc' ? '↑' : '↓' }}
+              </span>
+            </th>
+            <th 
+              scope="col"
+              role="columnheader"
+              :aria-sort="getSortDirection('serviceName')"
+              @click="sort('serviceName')"
+              @keydown.enter="sort('serviceName')"
+              @keydown.space="sort('serviceName')"
+              tabindex="0"
+              class="sortable-header"
+              aria-label="Sort by service name"
+            >
+              Service Name
+              <span v-if="sortKey === 'serviceName'" class="sort-indicator" aria-hidden="true">
+                {{ sortOrder === 'asc' ? '↑' : '↓' }}
+              </span>
+            </th>
+            <th 
+              scope="col"
+              role="columnheader"
+              :aria-sort="getSortDirection('category')"
+              @click="sort('category')"
+              @keydown.enter="sort('category')"
+              @keydown.space="sort('category')"
+              tabindex="0"
+              class="sortable-header"
+              aria-label="Sort by category"
+            >
+              Category
+              <span v-if="sortKey === 'category'" class="sort-indicator" aria-hidden="true">
+                {{ sortOrder === 'asc' ? '↑' : '↓' }}
+              </span>
+            </th>
+            <th 
+              scope="col"
+              role="columnheader"
+              :aria-sort="getSortDirection('clientName')"
+              @click="sort('clientName')"
+              @keydown.enter="sort('clientName')"
+              @keydown.space="sort('clientName')"
+              tabindex="0"
+              class="sortable-header"
+              aria-label="Sort by client name"
+            >
+              Client Name
+              <span v-if="sortKey === 'clientName'" class="sort-indicator" aria-hidden="true">
+                {{ sortOrder === 'asc' ? '↑' : '↓' }}
+              </span>
+            </th>
+            <th 
+              scope="col"
+              role="columnheader"
+              :aria-sort="getSortDirection('status')"
+              @click="sort('status')"
+              @keydown.enter="sort('status')"
+              @keydown.space="sort('status')"
+              tabindex="0"
+              class="sortable-header"
+              aria-label="Sort by status"
+            >
+              Status
+              <span v-if="sortKey === 'status'" class="sort-indicator" aria-hidden="true">
+                {{ sortOrder === 'asc' ? '↑' : '↓' }}
+              </span>
+            </th>
+            <th 
+              scope="col"
+              role="columnheader"
+              :aria-sort="getSortDirection('priority')"
+              @click="sort('priority')"
+              @keydown.enter="sort('priority')"
+              @keydown.space="sort('priority')"
+              tabindex="0"
+              class="sortable-header"
+              aria-label="Sort by priority"
+            >
+              Priority
+              <span v-if="sortKey === 'priority'" class="sort-indicator" aria-hidden="true">
+                {{ sortOrder === 'asc' ? '↑' : '↓' }}
+              </span>
+            </th>
+            <th 
+              scope="col"
+              role="columnheader"
+              :aria-sort="getSortDirection('duration')"
+              @click="sort('duration')"
+              @keydown.enter="sort('duration')"
+              @keydown.space="sort('duration')"
+              tabindex="0"
+              class="sortable-header"
+              aria-label="Sort by duration"
+            >
+              Duration
+              <span v-if="sortKey === 'duration'" class="sort-indicator" aria-hidden="true">
+                {{ sortOrder === 'asc' ? '↑' : '↓' }}
+              </span>
+            </th>
+            <th 
+              scope="col"
+              role="columnheader"
+              :aria-sort="getSortDirection('date')"
+              @click="sort('date')"
+              @keydown.enter="sort('date')"
+              @keydown.space="sort('date')"
+              tabindex="0"
+              class="sortable-header"
+              aria-label="Sort by date"
+            >
+              Date
+              <span v-if="sortKey === 'date'" class="sort-indicator" aria-hidden="true">
+                {{ sortOrder === 'asc' ? '↑' : '↓' }}
+              </span>
+            </th>
+            <th scope="col" role="columnheader">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr 
+            v-for="(service, index) in paginatedServices" 
+            :key="service.id"
+            :aria-rowindex="currentPage * itemsPerPage + index + 1"
+            role="row"
+          >
+            <td 
+              role="cell"
+              :aria-label="`Service ID: ${service.id}`"
+            >
+              {{ service.id }}
+            </td>
+            <td 
+              role="cell"
+              :aria-label="`Service name: ${service.serviceName}`"
+            >
+              {{ service.serviceName }}
+            </td>
+            <td 
+              role="cell"
+              :aria-label="`Service category: ${service.category}`"
+            >
+              <span class="badge" :class="getCategoryBadgeClass(service.category)">
+                {{ service.category }}
+              </span>
+            </td>
+            <td 
+              role="cell"
+              :aria-label="`Client name: ${service.clientName}`"
+            >
+              {{ service.clientName }}
+            </td>
+            <td 
+              role="cell"
+              :aria-label="`Service status: ${service.status}`"
+            >
+              <span class="badge" :class="getStatusBadgeClass(service.status)">
+                {{ service.status }}
+              </span>
+            </td>
+            <td 
+              role="cell"
+              :aria-label="`Service priority: ${service.priority}`"
+            >
+              <span class="badge" :class="getPriorityBadgeClass(service.priority)">
+                {{ service.priority }}
+              </span>
+            </td>
+            <td 
+              role="cell"
+              :aria-label="`Service duration: ${service.duration} hours`"
+            >
+              {{ service.duration }}h
+            </td>
+            <td 
+              role="cell"
+              :aria-label="`Service date: ${formatDate(service.date)}`"
+            >
+              {{ formatDate(service.date) }}
+            </td>
+            <td 
+              role="cell"
+              :aria-label="`Actions for service ${service.serviceName}`"
+            >
+              <div class="btn-group" role="group" :aria-label="`Actions for ${service.serviceName}`">
+                <button
+                  class="btn btn-sm btn-outline-primary"
+                  @click="editService(service)"
+                  @keydown.enter="editService(service)"
+                  @keydown.space="editService(service)"
+                  :aria-label="`Edit service ${service.serviceName}`"
+                >
+                  <span aria-hidden="true">✏️</span>
+                  <span class="sr-only">Edit</span>
+                </button>
+                <button
+                  class="btn btn-sm btn-outline-danger"
+                  @click="deleteService(service)"
+                  @keydown.enter="deleteService(service)"
+                  @keydown.space="deleteService(service)"
+                  :aria-label="`Delete service ${service.serviceName}`"
+                >
+                  <span aria-hidden="true">🗑️</span>
+                  <span class="sr-only">Delete</span>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination-container d-flex justify-content-between align-items-center">
+      <div class="pagination-info">
+        <span class="text-muted">
+          Showing {{ startIndex + 1 }} to {{ endIndex }} of {{ filteredServices.length }} services
+        </span>
       </div>
+      
+      <nav aria-label="Service table pagination">
+        <ul class="pagination mb-0">
+          <li class="page-item" :class="{ disabled: currentPage === 0 }">
+            <button
+              class="page-link"
+              @click="goToPage(currentPage - 1)"
+              @keydown.enter="goToPage(currentPage - 1)"
+              @keydown.space="goToPage(currentPage - 1)"
+              :disabled="currentPage === 0"
+              aria-label="Go to previous page"
+            >
+              Previous
+            </button>
+          </li>
+          
+          <li 
+            v-for="page in visiblePages" 
+            :key="page"
+            class="page-item"
+            :class="{ active: page === currentPage + 1 }"
+          >
+            <button
+              class="page-link"
+              @click="goToPage(page - 1)"
+              @keydown.enter="goToPage(page - 1)"
+              @keydown.space="goToPage(page - 1)"
+              :aria-label="`Go to page ${page}`"
+              :aria-current="page === currentPage + 1 ? 'page' : undefined"
+            >
+              {{ page }}
+            </button>
+          </li>
+          
+          <li class="page-item" :class="{ disabled: currentPage === totalPages - 1 }">
+            <button
+              class="page-link"
+              @click="goToPage(currentPage + 1)"
+              @keydown.enter="goToPage(currentPage + 1)"
+              @keydown.space="goToPage(currentPage + 1)"
+              :disabled="currentPage === totalPages - 1"
+              aria-label="Go to next page"
+            >
+              Next
+            </button>
+          </li>
+        </ul>
+      </nav>
+    </div>
+
+    <!-- Status announcement for screen readers -->
+    <div class="sr-only" aria-live="polite" aria-atomic="true">
+      {{ filteredServices.length }} services found. Page {{ currentPage + 1 }} of {{ totalPages }}.
+    </div>
+
+    <!-- Export Status Messages -->
+    <div v-if="exportStatus" class="alert mt-3" :class="exportStatusClass" role="alert" aria-live="polite">
+      <span v-if="exportStatus.type === 'success'" class="me-2" aria-hidden="true">✅</span>
+      <span v-else-if="exportStatus.type === 'error'" class="me-2" aria-hidden="true">⚠️</span>
+      {{ exportStatus.message }}
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
+import { exportServiceData } from '../utils/exportUtils'
 
-// Sample data
+// Sample service data
 const services = ref([
-  { id: 1, serviceName: 'Home Care Visit', category: 'healthcare', clientName: 'Mary Johnson', status: 'completed', priority: 'high', duration: 2, date: '2024-01-15' },
-  { id: 2, serviceName: 'Medical Transport', category: 'transportation', clientName: 'Robert Smith', status: 'in-progress', priority: 'medium', duration: 1.5, date: '2024-01-20' },
-  { id: 3, serviceName: 'Social Group Activity', category: 'social', clientName: 'Alice Brown', status: 'scheduled', priority: 'low', duration: 3, date: '2024-02-01' },
-  { id: 4, serviceName: 'Medication Review', category: 'healthcare', clientName: 'David Wilson', status: 'completed', priority: 'high', duration: 1, date: '2024-02-05' },
-  { id: 5, serviceName: 'Shopping Assistance', category: 'social', clientName: 'Eva Davis', status: 'cancelled', priority: 'medium', duration: 2, date: '2024-02-10' },
-  { id: 6, serviceName: 'Physical Therapy', category: 'healthcare', clientName: 'Frank Miller', status: 'in-progress', priority: 'high', duration: 1.5, date: '2024-02-15' },
-  { id: 7, serviceName: 'Library Visit', category: 'education', clientName: 'Grace Taylor', status: 'completed', priority: 'low', duration: 2, date: '2024-02-20' },
-  { id: 8, serviceName: 'Doctor Appointment', category: 'healthcare', clientName: 'Henry Garcia', status: 'scheduled', priority: 'high', duration: 1, date: '2024-02-25' },
-  { id: 9, serviceName: 'Community Center', category: 'social', clientName: 'Iris Martinez', status: 'completed', priority: 'medium', duration: 2.5, date: '2024-03-01' },
-  { id: 10, serviceName: 'Pharmacy Pickup', category: 'transportation', clientName: 'Jack Thomas', status: 'in-progress', priority: 'medium', duration: 1, date: '2024-03-05' },
-  { id: 11, serviceName: 'Computer Training', category: 'education', clientName: 'Kate Anderson', status: 'scheduled', priority: 'low', duration: 2, date: '2024-03-10' },
-  { id: 12, serviceName: 'Emergency Care', category: 'healthcare', clientName: 'Liam Jackson', status: 'completed', priority: 'high', duration: 3, date: '2024-03-15' },
-  { id: 13, serviceName: 'Grocery Shopping', category: 'social', clientName: 'Mia White', status: 'in-progress', priority: 'medium', duration: 2, date: '2024-03-20' },
-  { id: 14, serviceName: 'Dental Checkup', category: 'healthcare', clientName: 'Noah Harris', status: 'scheduled', priority: 'medium', duration: 1.5, date: '2024-03-25' },
-  { id: 15, serviceName: 'Book Club', category: 'education', clientName: 'Olivia Clark', status: 'completed', priority: 'low', duration: 2, date: '2024-03-30' }
+  { id: 1, serviceName: 'Health Consultation', category: 'consultation', clientName: 'John Smith', status: 'active', priority: 'high', duration: 2, date: '2024-01-15' },
+  { id: 2, serviceName: 'Physical Therapy', category: 'treatment', clientName: 'Jane Doe', status: 'completed', priority: 'medium', duration: 1.5, date: '2024-01-20' },
+  { id: 3, serviceName: 'Home Care Support', category: 'support', clientName: 'Bob Johnson', status: 'pending', priority: 'low', duration: 4, date: '2024-01-25' },
+  { id: 4, serviceName: 'Equipment Maintenance', category: 'maintenance', clientName: 'Alice Brown', status: 'active', priority: 'medium', duration: 1, date: '2024-02-01' },
+  { id: 5, serviceName: 'Medical Assessment', category: 'consultation', clientName: 'Charlie Wilson', status: 'cancelled', priority: 'high', duration: 3, date: '2024-02-05' },
+  { id: 6, serviceName: 'Rehabilitation Program', category: 'treatment', clientName: 'Diana Davis', status: 'active', priority: 'high', duration: 2.5, date: '2024-02-10' },
+  { id: 7, serviceName: 'Emergency Response', category: 'support', clientName: 'Edward Miller', status: 'completed', priority: 'high', duration: 1, date: '2024-02-15' },
+  { id: 8, serviceName: 'System Check', category: 'maintenance', clientName: 'Fiona Garcia', status: 'pending', priority: 'low', duration: 0.5, date: '2024-02-20' },
+  { id: 9, serviceName: 'Nutrition Counseling', category: 'consultation', clientName: 'George Martinez', status: 'active', priority: 'medium', duration: 1.5, date: '2024-02-25' },
+  { id: 10, serviceName: 'Medication Review', category: 'treatment', clientName: 'Helen Taylor', status: 'completed', priority: 'high', duration: 1, date: '2024-03-01' },
+  { id: 11, serviceName: 'Family Support', category: 'support', clientName: 'Ian Anderson', status: 'active', priority: 'medium', duration: 2, date: '2024-03-05' },
+  { id: 12, serviceName: 'Device Calibration', category: 'maintenance', clientName: 'Julia Thomas', status: 'pending', priority: 'low', duration: 0.5, date: '2024-03-10' }
 ])
 
-// Reactive data
+// Table state
 const globalSearch = ref('')
-const columnFilters = ref({
+const filters = ref({
   serviceName: '',
   category: '',
   status: '',
   priority: ''
 })
-const currentPage = ref(1)
-const itemsPerPage = 10
 const sortKey = ref('id')
-const sortOrders = ref({
-  id: 'asc',
-  serviceName: 'asc',
-  category: 'asc',
-  clientName: 'asc',
-  status: 'asc',
-  priority: 'asc',
-  duration: 'asc',
-  date: 'asc'
-})
+const sortOrder = ref('asc')
+const currentPage = ref(0)
+const itemsPerPage = 10
+
+// Export state
+const isExporting = ref(false)
+const exportStatus = ref(null)
 
 // Computed properties
-const filteredData = computed(() => {
+const filteredServices = computed(() => {
   let filtered = services.value
 
   // Global search
   if (globalSearch.value) {
-    const searchTerm = globalSearch.value.toLowerCase()
-    filtered = filtered.filter(service => 
-      service.serviceName.toLowerCase().includes(searchTerm) ||
-      service.category.toLowerCase().includes(searchTerm) ||
-      service.clientName.toLowerCase().includes(searchTerm) ||
-      service.status.toLowerCase().includes(searchTerm) ||
-      service.priority.toLowerCase().includes(searchTerm)
+    const search = globalSearch.value.toLowerCase()
+    filtered = filtered.filter(service =>
+      service.serviceName.toLowerCase().includes(search) ||
+      service.category.toLowerCase().includes(search) ||
+      service.clientName.toLowerCase().includes(search) ||
+      service.status.toLowerCase().includes(search) ||
+      service.priority.toLowerCase().includes(search)
     )
   }
 
   // Column filters
-  if (columnFilters.value.serviceName) {
-    filtered = filtered.filter(service => 
-      service.serviceName.toLowerCase().includes(columnFilters.value.serviceName.toLowerCase())
+  if (filters.value.serviceName) {
+    filtered = filtered.filter(service =>
+      service.serviceName.toLowerCase().includes(filters.value.serviceName.toLowerCase())
     )
   }
-  if (columnFilters.value.category) {
-    filtered = filtered.filter(service => service.category === columnFilters.value.category)
-  }
-  if (columnFilters.value.status) {
-    filtered = filtered.filter(service => service.status === columnFilters.value.status)
-  }
-  if (columnFilters.value.priority) {
-    filtered = filtered.filter(service => service.priority === columnFilters.value.priority)
+
+  if (filters.value.category) {
+    filtered = filtered.filter(service => service.category === filters.value.category)
   }
 
-  // Sorting
-  filtered.sort((a, b) => {
-    const aVal = a[sortKey.value]
-    const bVal = b[sortKey.value]
-    const order = sortOrders.value[sortKey.value] === 'asc' ? 1 : -1
-    
-    if (typeof aVal === 'string') {
-      return aVal.localeCompare(bVal) * order
-    }
-    return (aVal - bVal) * order
-  })
+  if (filters.value.status) {
+    filtered = filtered.filter(service => service.status === filters.value.status)
+  }
+
+  if (filters.value.priority) {
+    filtered = filtered.filter(service => service.priority === filters.value.priority)
+  }
 
   return filtered
 })
 
-const totalPages = computed(() => Math.ceil(filteredData.value.length / itemsPerPage))
+const sortedServices = computed(() => {
+  const sorted = [...filteredServices.value]
+  sorted.sort((a, b) => {
+    let aVal = a[sortKey.value]
+    let bVal = b[sortKey.value]
 
-const paginatedData = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage
-  const end = start + itemsPerPage
-  return filteredData.value.slice(start, end)
+    // Handle date sorting
+    if (sortKey.value === 'date') {
+      aVal = new Date(aVal)
+      bVal = new Date(bVal)
+    }
+
+    if (aVal < bVal) return sortOrder.value === 'asc' ? -1 : 1
+    if (aVal > bVal) return sortOrder.value === 'asc' ? 1 : -1
+    return 0
+  })
+
+  return sorted
 })
+
+const totalPages = computed(() => Math.ceil(sortedServices.value.length / itemsPerPage))
+
+const paginatedServices = computed(() => {
+  const start = currentPage.value * itemsPerPage
+  const end = start + itemsPerPage
+  return sortedServices.value.slice(start, end)
+})
+
+const startIndex = computed(() => currentPage.value * itemsPerPage)
+const endIndex = computed(() => Math.min(startIndex.value + itemsPerPage, sortedServices.value.length))
 
 const visiblePages = computed(() => {
   const pages = []
-  const maxVisible = 5
-  let start = Math.max(1, currentPage.value - Math.floor(maxVisible / 2))
-  let end = Math.min(totalPages.value, start + maxVisible - 1)
-  
-  if (end - start + 1 < maxVisible) {
-    start = Math.max(1, end - maxVisible + 1)
+  const total = totalPages.value
+  const current = currentPage.value + 1
+
+  if (total <= 5) {
+    for (let i = 1; i <= total; i++) {
+      pages.push(i)
+    }
+  } else {
+    if (current <= 3) {
+      for (let i = 1; i <= 5; i++) {
+        pages.push(i)
+      }
+    } else if (current >= total - 2) {
+      for (let i = total - 4; i <= total; i++) {
+        pages.push(i)
+      }
+    } else {
+      for (let i = current - 2; i <= current + 2; i++) {
+        pages.push(i)
+      }
+    }
   }
-  
-  for (let i = start; i <= end; i++) {
-    pages.push(i)
-  }
+
   return pages
+})
+
+const exportStatusClass = computed(() => {
+  if (!exportStatus.value) return ''
+  return exportStatus.value.type === 'success' ? 'alert-success' : 'alert-danger'
 })
 
 // Methods
 const sort = (key) => {
   if (sortKey.value === key) {
-    sortOrders.value[key] = sortOrders.value[key] === 'asc' ? 'desc' : 'asc'
+    sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc'
   } else {
     sortKey.value = key
-    sortOrders.value[key] = 'asc'
+    sortOrder.value = 'asc'
   }
-  currentPage.value = 1
+  currentPage.value = 0
 }
 
-const changePage = (page) => {
-  if (page >= 1 && page <= totalPages.value) {
+const getSortDirection = (key) => {
+  if (sortKey.value !== key) return 'none'
+  return sortOrder.value === 'asc' ? 'ascending' : 'descending'
+}
+
+const goToPage = (page) => {
+  if (page >= 0 && page < totalPages.value) {
     currentPage.value = page
   }
-}
-
-const getCategoryBadgeClass = (category) => {
-  const classes = {
-    healthcare: 'badge bg-danger',
-    transportation: 'badge bg-primary',
-    social: 'badge bg-success',
-    education: 'badge bg-info'
-  }
-  return classes[category] || 'badge bg-secondary'
-}
-
-const getStatusBadgeClass = (status) => {
-  const classes = {
-    completed: 'badge bg-success',
-    'in-progress': 'badge bg-warning',
-    scheduled: 'badge bg-info',
-    cancelled: 'badge bg-secondary'
-  }
-  return classes[status] || 'badge bg-secondary'
-}
-
-const getPriorityBadgeClass = (priority) => {
-  const classes = {
-    high: 'badge bg-danger',
-    medium: 'badge bg-warning',
-    low: 'badge bg-success'
-  }
-  return classes[priority] || 'badge bg-secondary'
 }
 
 const formatDate = (dateString) => {
   return new Date(dateString).toLocaleDateString()
 }
 
-// Watch for filter changes to reset pagination
-const resetPagination = () => {
-  currentPage.value = 1
+const getCategoryBadgeClass = (category) => {
+  switch (category) {
+    case 'consultation': return 'bg-primary'
+    case 'treatment': return 'bg-success'
+    case 'support': return 'bg-info'
+    case 'maintenance': return 'bg-warning'
+    default: return 'bg-secondary'
+  }
 }
 
-// Watch for changes in filters
-import { watch } from 'vue'
-watch([globalSearch, columnFilters], resetPagination, { deep: true })
+const getStatusBadgeClass = (status) => {
+  switch (status) {
+    case 'active': return 'bg-success'
+    case 'pending': return 'bg-warning'
+    case 'completed': return 'bg-info'
+    case 'cancelled': return 'bg-danger'
+    default: return 'bg-secondary'
+  }
+}
+
+const getPriorityBadgeClass = (priority) => {
+  switch (priority) {
+    case 'high': return 'bg-danger'
+    case 'medium': return 'bg-warning'
+    case 'low': return 'bg-success'
+    default: return 'bg-secondary'
+  }
+}
+
+const editService = (service) => {
+  console.log('Edit service:', service)
+  // Implement edit functionality
+}
+
+const deleteService = (service) => {
+  console.log('Delete service:', service)
+  // Implement delete functionality
+}
+
+const exportData = async (format) => {
+  if (isExporting.value) return
+  
+  isExporting.value = true
+  exportStatus.value = null
+  
+  try {
+    // 导出当前筛选后的数据
+    const result = exportServiceData(filteredServices.value, format)
+    
+    if (result.success) {
+      exportStatus.value = {
+        type: 'success',
+        message: `${format.toUpperCase()} 文件导出成功！`
+      }
+      
+      // 3秒后清除成功消息
+      setTimeout(() => {
+        exportStatus.value = null
+      }, 3000)
+    } else {
+      throw new Error(result.message)
+    }
+  } catch (error) {
+    console.error('Export error:', error)
+    exportStatus.value = {
+      type: 'error',
+      message: `导出失败: ${error.message}`
+    }
+    
+    // 5秒后清除错误消息
+    setTimeout(() => {
+      exportStatus.value = null
+    }, 5000)
+  } finally {
+    isExporting.value = false
+  }
+}
+
+// Watch for filter changes to reset pagination
+watch([globalSearch, filters], () => {
+  currentPage.value = 0
+})
 </script>
 
 <style scoped>
-.card {
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+.table-container {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+}
+
+.sortable-header {
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+}
+
+.sortable-header:hover {
+  background-color: #f8f9fa;
+}
+
+.sortable-header:focus {
+  outline: 3px solid #007bff;
+  outline-offset: 2px;
+}
+
+.sort-indicator {
+  margin-left: 5px;
+  font-weight: bold;
 }
 
 .table th {
-  cursor: pointer;
-  user-select: none;
+  background-color: #f8f9fa;
+  font-weight: 600;
+  border-bottom: 2px solid #dee2e6;
 }
 
-.table th:hover {
-  background-color: #495057;
+.table td {
+  vertical-align: middle;
+}
+
+.badge {
+  font-size: 0.75rem;
+  padding: 0.375rem 0.75rem;
+}
+
+.btn-group .btn {
+  min-width: 44px;
+  min-height: 32px;
 }
 
 .pagination .page-link {
-  color: #0d6efd;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.pagination .page-item.active .page-link {
-  background-color: #0d6efd;
-  border-color: #0d6efd;
+.pagination .page-link:focus {
+  outline: 3px solid #007bff;
+  outline-offset: 2px;
+}
+
+/* Screen reader only text */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* High contrast support */
+.high-contrast .table th {
+  background-color: #000;
+  color: #fff;
+  border-color: #fff;
+}
+
+.high-contrast .table td {
+  border-color: #000;
+}
+
+.high-contrast .badge {
+  border: 1px solid #000;
+}
+
+/* Responsive accessibility */
+@media (max-width: 768px) {
+  .table-container {
+    padding: 15px;
+  }
+  
+  .sortable-header:focus {
+    outline: 2px solid #007bff;
+    outline-offset: 1px;
+  }
+  
+  .pagination .page-link {
+    min-width: 40px;
+    min-height: 40px;
+  }
+}
+
+/* Focus indicators */
+.form-control:focus,
+.form-select:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Improved table accessibility */
+.table-responsive {
+  border: 1px solid #dee2e6;
+  border-radius: 0.375rem;
+}
+
+.table {
+  margin-bottom: 0;
+}
+
+.table tbody tr:hover {
+  background-color: rgba(0, 123, 255, 0.1);
+}
+
+/* Pagination info */
+.pagination-info {
+  font-size: 0.875rem;
+}
+
+/* Button accessibility */
+.btn {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.btn-sm {
+  min-height: 32px;
+  min-width: 32px;
 }
 </style>
