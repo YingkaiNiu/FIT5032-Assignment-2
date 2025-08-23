@@ -1,27 +1,45 @@
 <template>
-  <div class="health-map-container">
+  <div class="health-map-container" role="region" aria-label="Health services map">
     <div class="map-controls mb-3">
       <div class="row">
         <div class="col-md-6">
           <div class="input-group">
+            <label for="search-services" class="sr-only">Search for health services</label>
             <input 
+              id="search-services"
               type="text" 
               class="form-control" 
               placeholder="Search for health services..."
               v-model="searchQuery"
               @keyup.enter="searchServices"
+              aria-describedby="search-help"
             />
-            <button class="btn btn-primary" @click="searchServices">
-              🔍 Search
+            <button 
+              class="btn btn-primary" 
+              @click="searchServices"
+              @keydown.enter="searchServices"
+              @keydown.space="searchServices"
+              aria-label="Search for health services"
+            >
+              <span aria-hidden="true">🔍</span>
+              <span class="sr-only">Search</span>
             </button>
+          </div>
+          <div id="search-help" class="form-text">
+            Type the name of a health service or address to search
           </div>
         </div>
         <div class="col-md-6">
-          <div class="btn-group" role="group">
+          <fieldset class="btn-group" role="group" aria-labelledby="category-legend">
+            <legend id="category-legend" class="sr-only">Filter by service category</legend>
             <button 
               class="btn btn-outline-primary" 
               :class="{ active: selectedCategory === 'all' }"
               @click="filterByCategory('all')"
+              @keydown.enter="filterByCategory('all')"
+              @keydown.space="filterByCategory('all')"
+              aria-pressed="selectedCategory === 'all'"
+              aria-label="Show all health services"
             >
               All
             </button>
@@ -29,45 +47,84 @@
               class="btn btn-outline-primary" 
               :class="{ active: selectedCategory === 'hospital' }"
               @click="filterByCategory('hospital')"
+              @keydown.enter="filterByCategory('hospital')"
+              @keydown.space="filterByCategory('hospital')"
+              aria-pressed="selectedCategory === 'hospital'"
+              aria-label="Show only hospitals"
             >
-              🏥 Hospitals
+              <span aria-hidden="true">🏥</span>
+              <span class="sr-only">Hospitals</span>
             </button>
             <button 
               class="btn btn-outline-primary" 
               :class="{ active: selectedCategory === 'pharmacy' }"
               @click="filterByCategory('pharmacy')"
+              @keydown.enter="filterByCategory('pharmacy')"
+              @keydown.space="filterByCategory('pharmacy')"
+              aria-pressed="selectedCategory === 'pharmacy'"
+              aria-label="Show only pharmacies"
             >
-              💊 Pharmacies
+              <span aria-hidden="true">💊</span>
+              <span class="sr-only">Pharmacies</span>
             </button>
             <button 
               class="btn btn-outline-primary" 
               :class="{ active: selectedCategory === 'clinic' }"
               @click="filterByCategory('clinic')"
+              @keydown.enter="filterByCategory('clinic')"
+              @keydown.space="filterByCategory('clinic')"
+              aria-pressed="selectedCategory === 'clinic'"
+              aria-label="Show only clinics"
             >
-              🏥 Clinics
+              <span aria-hidden="true">🏥</span>
+              <span class="sr-only">Clinics</span>
             </button>
-          </div>
+          </fieldset>
         </div>
       </div>
     </div>
 
     <div class="map-wrapper">
-      <div id="map" style="width: 100%; height: 500px;"></div>
+      <div 
+        id="map" 
+        style="width: 100%; height: 500px;"
+        role="application"
+        aria-label="Interactive map showing health services"
+        tabindex="0"
+        @keydown="handleMapKeyboard"
+      ></div>
+      <div class="map-instructions sr-only">
+        Use arrow keys to navigate the map. Press Enter or Space to select a location.
+      </div>
     </div>
 
     <!-- Service List -->
     <div class="service-list mt-3">
-      <h5>Nearby Health Services</h5>
-      <div class="row">
+      <h5 id="services-heading">Nearby Health Services</h5>
+      <div 
+        class="row" 
+        role="list" 
+        aria-labelledby="services-heading"
+        aria-describedby="services-description"
+      >
         <div 
           v-for="service in filteredServices" 
           :key="service.id"
           class="col-md-6 col-lg-4 mb-3"
+          role="listitem"
         >
-          <div class="card service-card" @click="selectService(service)">
+          <div 
+            class="card service-card" 
+            @click="selectService(service)"
+            @keydown.enter="selectService(service)"
+            @keydown.space="selectService(service)"
+            tabindex="0"
+            :aria-label="`${service.name}, ${service.category}, ${service.distance}km away`"
+            role="button"
+          >
             <div class="card-body">
               <div class="d-flex align-items-start">
-                <div class="service-icon me-3">
+                <div class="service-icon me-3" aria-hidden="true">
                   {{ getServiceIcon(service.category) }}
                 </div>
                 <div class="service-info">
@@ -77,12 +134,25 @@
                     <span class="badge bg-primary me-2">{{ service.category }}</span>
                     <span class="text-muted">{{ service.distance }}km away</span>
                   </div>
+                  <div class="sr-only">
+                    Phone: {{ service.phone }}, Rating: {{ service.rating }} out of 5
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+      <div id="services-description" class="sr-only">
+        {{ filteredServices.length }} health services found. Click on any service card to view it on the map.
+      </div>
+    </div>
+
+    <!-- Accessibility status -->
+    <div class="accessibility-status" aria-live="polite" aria-atomic="true">
+      <span v-if="selectedService" class="sr-only">
+        Selected: {{ selectedService.name }} at {{ selectedService.address }}
+      </span>
     </div>
   </div>
 </template>
@@ -239,11 +309,24 @@ const getInfoWindowContent = (service) => {
 const searchServices = () => {
   // 这里可以集成 Google Places API 进行真实搜索
   console.log('Searching for:', searchQuery.value)
+  
+  // Announce search results to screen readers
+  const statusElement = document.querySelector('.accessibility-status')
+  if (statusElement) {
+    statusElement.textContent = `Searching for ${searchQuery.value}`
+  }
 }
 
 const filterByCategory = (category) => {
   selectedCategory.value = category
   updateMarkers()
+  
+  // Announce filter change to screen readers
+  const statusElement = document.querySelector('.accessibility-status')
+  if (statusElement) {
+    const categoryName = category === 'all' ? 'all services' : category + 's'
+    statusElement.textContent = `Showing ${categoryName}`
+  }
 }
 
 const selectService = (service) => {
@@ -252,6 +335,12 @@ const selectService = (service) => {
     map.setCenter(service.position)
     map.setZoom(15)
     showServiceInfo(service)
+  }
+  
+  // Announce selection to screen readers
+  const statusElement = document.querySelector('.accessibility-status')
+  if (statusElement) {
+    statusElement.textContent = `Selected ${service.name} at ${service.address}`
   }
 }
 
@@ -283,6 +372,40 @@ const updateMarkers = () => {
 
     markers.push(marker)
   })
+}
+
+const handleMapKeyboard = (event) => {
+  if (!map) return
+  
+  const panDistance = 0.01 // Adjust based on zoom level
+  
+  switch (event.key) {
+    case 'ArrowUp':
+      event.preventDefault()
+      map.panBy(0, -100)
+      break
+    case 'ArrowDown':
+      event.preventDefault()
+      map.panBy(0, 100)
+      break
+    case 'ArrowLeft':
+      event.preventDefault()
+      map.panBy(-100, 0)
+      break
+    case 'ArrowRight':
+      event.preventDefault()
+      map.panBy(100, 0)
+      break
+    case '+':
+    case '=':
+      event.preventDefault()
+      map.setZoom(map.getZoom() + 1)
+      break
+    case '-':
+      event.preventDefault()
+      map.setZoom(map.getZoom() - 1)
+      break
+  }
 }
 
 const getUserLocation = () => {
@@ -319,9 +442,21 @@ const getUserLocation = () => {
             }
           })
         }
+        
+        // Announce location to screen readers
+        const statusElement = document.querySelector('.accessibility-status')
+        if (statusElement) {
+          statusElement.textContent = 'Your location has been detected and marked on the map'
+        }
       },
       (error) => {
         console.error('Error getting location:', error)
+        
+        // Announce error to screen readers
+        const statusElement = document.querySelector('.accessibility-status')
+        if (statusElement) {
+          statusElement.textContent = 'Unable to detect your location. Please allow location access or search manually.'
+        }
       }
     )
   }
@@ -354,6 +489,12 @@ const initMap = () => {
 
   // Get user location
   getUserLocation()
+  
+  // Announce map loaded to screen readers
+  const statusElement = document.querySelector('.accessibility-status')
+  if (statusElement) {
+    statusElement.textContent = 'Map loaded successfully. Use arrow keys to navigate.'
+  }
 }
 
 const loadGoogleMaps = () => {
@@ -400,6 +541,7 @@ onUnmounted(() => {
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  position: relative;
 }
 
 .service-card {
@@ -411,6 +553,11 @@ onUnmounted(() => {
 .service-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.service-card:focus {
+  outline: 3px solid #007bff;
+  outline-offset: 2px;
 }
 
 .service-icon {
@@ -429,11 +576,91 @@ onUnmounted(() => {
 .btn-group .btn {
   font-size: 12px;
   padding: 6px 12px;
+  min-height: 44px;
 }
 
 .btn-group .btn.active {
   background-color: #0d6efd;
   border-color: #0d6efd;
   color: white;
+}
+
+.btn-group .btn:focus {
+  outline: 3px solid #007bff;
+  outline-offset: 2px;
+}
+
+/* Screen reader only text */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Accessibility status */
+.accessibility-status {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* Map instructions */
+.map-instructions {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  z-index: 1000;
+}
+
+/* High contrast support */
+.high-contrast .service-card {
+  border: 2px solid #000;
+}
+
+.high-contrast .btn-group .btn {
+  border: 2px solid #000;
+}
+
+.high-contrast .btn-group .btn.active {
+  background-color: #000;
+  color: #fff;
+}
+
+/* Focus indicators for keyboard navigation */
+#map:focus {
+  outline: 3px solid #007bff;
+  outline-offset: 2px;
+}
+
+/* Improved form accessibility */
+.form-control:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Responsive accessibility */
+@media (max-width: 768px) {
+  .btn-group .btn {
+    min-height: 48px;
+    font-size: 14px;
+  }
+  
+  .service-card:focus {
+    outline: 2px solid #007bff;
+    outline-offset: 1px;
+  }
 }
 </style>
