@@ -181,7 +181,7 @@
                 @keydown.enter="navigateTo('/innovation')"
                 @keydown.space="navigateTo('/innovation')"
               >
-                🚀 Innovation
+                Innovation Features
               </router-link>
             </li>
           </ul>

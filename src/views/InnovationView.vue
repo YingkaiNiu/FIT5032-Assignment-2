@@ -1,92 +1,128 @@
 <template>
-  <div class="innovation-view">
-    <div class="container mt-4">
-      <div class="row">
-        <div class="col-12">
-          <h2 class="text-center mb-4">创新功能体验中心</h2>
-          <p class="text-center text-muted mb-5">
-            探索我们为提升用户体验而设计的创新功能
-          </p>
-        </div>
+  <div class="innovation-view-container">
+    <div class="container-fluid">
+      <!-- Page Header -->
+      <div class="page-header mb-4">
+        <h1>Innovation Features</h1>
+        <p class="lead">Advanced healthcare technology features to enhance your experience</p>
       </div>
-
+      
       <!-- Feature Navigation -->
-      <div class="feature-nav mb-4">
+      <div class="feature-navigation mb-4">
         <div class="row">
           <div class="col-12">
             <div class="nav nav-pills justify-content-center" role="tablist">
               <button
-                v-for="(feature, index) in features"
+                v-for="feature in features"
                 :key="feature.id"
+                @click="activeFeature = feature.id"
                 class="nav-link"
                 :class="{ active: activeFeature === feature.id }"
-                @click="setActiveFeature(feature.id)"
-                @keydown.enter="setActiveFeature(feature.id)"
-                @keydown.space="setActiveFeature(feature.id)"
                 :aria-selected="activeFeature === feature.id"
-                :aria-controls="`feature-${feature.id}`"
+                :aria-controls="`${feature.id}-tab`"
                 role="tab"
-                type="button"
               >
                 <span class="feature-icon me-2" aria-hidden="true">{{ feature.icon }}</span>
-                {{ feature.title }}
+                {{ feature.name }}
               </button>
             </div>
           </div>
         </div>
       </div>
-
+      
       <!-- Feature Content -->
       <div class="feature-content">
         <div class="tab-content">
+          <!-- AI Health Assistant -->
           <div
-            v-for="feature in features"
-            :key="feature.id"
-            class="tab-pane"
-            :class="{ active: activeFeature === feature.id }"
-            :id="`feature-${feature.id}`"
+            v-show="activeFeature === 'assistant'"
+            class="tab-pane fade"
+            :class="{ 'show active': activeFeature === 'assistant' }"
             role="tabpanel"
-            :aria-labelledby="`feature-${feature.id}-tab`"
+            aria-labelledby="assistant-tab"
           >
-            <component :is="feature.component" />
+            <div class="row">
+              <div class="col-12">
+                <HealthAssistant />
+              </div>
+            </div>
+          </div>
+          
+          <!-- Health Dashboard -->
+          <div
+            v-show="activeFeature === 'dashboard'"
+            class="tab-pane fade"
+            :class="{ 'show active': activeFeature === 'dashboard' }"
+            role="tabpanel"
+            aria-labelledby="dashboard-tab"
+          >
+            <div class="row">
+              <div class="col-12">
+                <HealthDashboard />
+              </div>
+            </div>
+          </div>
+          
+          <!-- Appointment Scheduler -->
+          <div
+            v-show="activeFeature === 'scheduler'"
+            class="tab-pane fade"
+            :class="{ 'show active': activeFeature === 'scheduler' }"
+            role="tabpanel"
+            aria-labelledby="scheduler-tab"
+          >
+            <div class="row">
+              <div class="col-12">
+                <AppointmentScheduler />
+              </div>
+            </div>
+          </div>
+          
+          <!-- Offline Records -->
+          <div
+            v-show="activeFeature === 'records'"
+            class="tab-pane fade"
+            :class="{ 'show active': activeFeature === 'records' }"
+            role="tabpanel"
+            aria-labelledby="records-tab"
+          >
+            <div class="row">
+              <div class="col-12">
+                <OfflineHealthRecords />
+              </div>
+            </div>
           </div>
         </div>
       </div>
-
-      <!-- Feature Overview -->
-      <div class="feature-overview mt-5">
-        <h3 class="text-center mb-4">功能概览</h3>
+      
+      <!-- Feature Information -->
+      <div class="feature-info mt-5">
         <div class="row">
-          <div
-            v-for="feature in features"
-            :key="feature.id"
-            class="col-lg-3 col-md-6 mb-4"
-          >
-            <div class="feature-card h-100">
-              <div class="feature-card-header">
-                <div class="feature-icon-large mb-3" aria-hidden="true">
-                  {{ feature.icon }}
+          <div class="col-12">
+            <div class="card">
+              <div class="card-header">
+                <h3>About These Innovation Features</h3>
+              </div>
+              <div class="card-body">
+                <div class="row">
+                  <div 
+                    v-for="feature in features" 
+                    :key="feature.id"
+                    class="col-md-6 col-lg-3 mb-4"
+                  >
+                    <div class="feature-card">
+                      <div class="feature-icon-large mb-3">{{ feature.icon }}</div>
+                      <h5>{{ feature.name }}</h5>
+                      <p class="feature-description">{{ feature.description }}</p>
+                      <div class="feature-benefits">
+                        <h6>Benefits:</h6>
+                        <ul>
+                          <li v-for="benefit in feature.benefits" :key="benefit">{{ benefit }}</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <h5>{{ feature.title }}</h5>
-              </div>
-              <div class="feature-card-body">
-                <p class="text-muted">{{ feature.description }}</p>
-                <ul class="feature-benefits">
-                  <li v-for="benefit in feature.benefits" :key="benefit">
-                    {{ benefit }}
-                  </li>
-                </ul>
-              </div>
-              <div class="feature-card-footer">
-                <button
-                  class="btn btn-primary btn-sm"
-                  @click="setActiveFeature(feature.id)"
-                  @keydown.enter="setActiveFeature(feature.id)"
-                  @keydown.space="setActiveFeature(feature.id)"
-                  aria-label="体验 {{ feature.title }}"
-                >
-                  立即体验
-                </button>
               </div>
             </div>
           </div>
@@ -97,223 +133,185 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import AppointmentCalendar from '../components/AppointmentCalendar.vue'
-import AdminDashboard from '../components/AdminDashboard.vue'
-import AIChatbot from '../components/AIChatbot.vue'
-import OfflineSupport from '../components/OfflineSupport.vue'
+import { ref } from 'vue'
+import HealthAssistant from '../components/HealthAssistant.vue'
+import HealthDashboard from '../components/HealthDashboard.vue'
+import AppointmentScheduler from '../components/AppointmentScheduler.vue'
+import OfflineHealthRecords from '../components/OfflineHealthRecords.vue'
 
 // Active feature state
-const activeFeature = ref('calendar')
+const activeFeature = ref('assistant')
 
-// Features configuration
+// Features data
 const features = ref([
   {
-    id: 'calendar',
-    title: '智能预约日历',
-    icon: '📅',
-    component: AppointmentCalendar,
-    description: '智能预约管理系统，支持冲突检测和时间建议',
+    id: 'assistant',
+    name: 'AI Health Assistant',
+    icon: '🤖',
+    description: 'Intelligent health consultation powered by advanced AI technology',
     benefits: [
-      '实时冲突检测',
-      '智能时间建议',
-      '多视图切换',
-      '拖拽式操作'
+      '24/7 health advice availability',
+      'Personalized health recommendations',
+      'Symptom analysis and guidance',
+      'Multilingual support'
     ]
   },
   {
     id: 'dashboard',
-    title: '数据可视化',
+    name: 'Health Analytics Dashboard',
     icon: '📊',
-    component: AdminDashboard,
-    description: '实时数据可视化仪表板，展示关键业务指标',
+    description: 'Comprehensive health data visualization and analytics platform',
     benefits: [
-      '实时数据更新',
-      '多种图表类型',
-      '交互式操作',
-      '响应式设计'
+      'Real-time health metrics tracking',
+      'Interactive data visualization',
+      'Trend analysis and insights',
+      'Export capabilities for reports'
     ]
   },
   {
-    id: 'chatbot',
-    title: 'AI智能客服',
-    icon: '🤖',
-    component: AIChatbot,
-    description: 'AI驱动的智能客服助手，提供24/7在线服务',
+    id: 'scheduler',
+    name: 'Smart Appointment Scheduler',
+    icon: '📅',
+    description: 'Intelligent calendar-based appointment management system',
     benefits: [
-      '智能问答',
-      '快速响应',
-      '多语言支持',
-      '学习能力'
+      'Conflict detection and prevention',
+      'Drag-and-drop appointment management',
+      'Multiple calendar views',
+      'Automated reminders and notifications'
     ]
   },
   {
-    id: 'offline',
-    title: '离线功能支持',
+    id: 'records',
+    name: 'Offline Health Records',
     icon: '📱',
-    component: OfflineSupport,
-    description: '完整的离线功能支持，确保无网络时也能正常使用',
+    description: 'Offline-capable health record management with automatic synchronization',
     benefits: [
-      '离线浏览',
-      '数据缓存',
-      '自动同步',
-      '状态监控'
+      'Works without internet connection',
+      'Automatic data synchronization',
+      'Local data storage and security',
+      'Cross-device data access'
     ]
   }
 ])
-
-// Methods
-const setActiveFeature = (featureId) => {
-  activeFeature.value = featureId
-  
-  // Scroll to feature content
-  setTimeout(() => {
-    const featureContent = document.querySelector('.feature-content')
-    if (featureContent) {
-      featureContent.scrollIntoView({ 
-        behavior: 'smooth',
-        block: 'start'
-      })
-    }
-  }, 100)
-}
-
-// Lifecycle
-onMounted(() => {
-  // Set initial active feature
-  activeFeature.value = 'calendar'
-})
 </script>
 
 <style scoped>
-.innovation-view {
+.innovation-view-container {
   min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   padding: 20px 0;
 }
 
-.container {
-  background: white;
-  border-radius: 15px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  padding: 30px;
+.page-header {
+  text-align: center;
+  color: white;
+  margin-bottom: 40px;
 }
 
-.feature-nav .nav-pills {
-  gap: 10px;
+.page-header h1 {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 10px;
 }
 
-.feature-nav .nav-link {
+.page-header .lead {
+  font-size: 1.2rem;
+  opacity: 0.9;
+}
+
+.feature-navigation {
+  margin-bottom: 30px;
+}
+
+.nav-pills .nav-link {
+  color: white;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  margin: 0 5px;
   border-radius: 25px;
-  padding: 12px 24px;
-  font-weight: 500;
+  padding: 10px 20px;
   transition: all 0.3s ease;
-  border: 2px solid transparent;
-  background: #f8f9fa;
-  color: #6c757d;
 }
 
-.feature-nav .nav-link:hover {
-  background: #e9ecef;
-  color: #495057;
+.nav-pills .nav-link:hover {
+  background: rgba(255, 255, 255, 0.2);
   transform: translateY(-2px);
 }
 
-.feature-nav .nav-link.active {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border-color: #667eea;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+.nav-pills .nav-link.active {
+  background: white;
+  color: #667eea;
+  font-weight: 600;
 }
 
 .feature-icon {
-  font-size: 18px;
+  font-size: 1.2rem;
 }
 
 .feature-content {
-  min-height: 600px;
-  padding: 30px 0;
-}
-
-.tab-pane {
-  display: none;
-}
-
-.tab-pane.active {
-  display: block;
-  animation: fadeIn 0.5s ease-in-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.feature-overview {
-  background: #f8f9fa;
+  background: white;
   border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  margin-bottom: 30px;
+}
+
+.tab-content {
   padding: 30px;
+}
+
+.feature-info {
   margin-top: 40px;
 }
 
 .feature-card {
-  background: white;
-  border-radius: 12px;
-  padding: 25px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-  border: 1px solid #e9ecef;
+  text-align: center;
+  padding: 20px;
+  border-radius: 10px;
+  background: #f8f9fa;
+  height: 100%;
+  transition: transform 0.3s ease;
 }
 
 .feature-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-}
-
-.feature-card-header {
-  text-align: center;
-  margin-bottom: 20px;
 }
 
 .feature-icon-large {
-  font-size: 48px;
-  margin-bottom: 15px;
+  font-size: 3rem;
 }
 
-.feature-card-header h5 {
+.feature-card h5 {
   color: #333;
+  margin-bottom: 10px;
   font-weight: 600;
-  margin: 0;
 }
 
-.feature-card-body {
-  margin-bottom: 20px;
-}
-
-.feature-card-body p {
+.feature-description {
   color: #666;
-  line-height: 1.6;
+  font-size: 0.9rem;
   margin-bottom: 15px;
+  line-height: 1.4;
 }
 
-.feature-benefits {
+.feature-benefits h6 {
+  color: #007bff;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.feature-benefits ul {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
 .feature-benefits li {
-  padding: 5px 0;
   color: #555;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
+  margin-bottom: 5px;
+  padding-left: 15px;
   position: relative;
-  padding-left: 20px;
 }
 
 .feature-benefits li::before {
@@ -324,72 +322,57 @@ onMounted(() => {
   font-weight: bold;
 }
 
-.feature-card-footer {
-  text-align: center;
-}
-
-.btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border: none;
-  border-radius: 25px;
-  padding: 8px 20px;
-  font-weight: 500;
-  transition: all 0.3s ease;
-}
-
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-}
-
-/* Accessibility */
+/* Accessibility improvements */
 .nav-link:focus {
-  outline: 3px solid #007bff;
+  outline: 3px solid #fff;
   outline-offset: 2px;
 }
 
-.btn:focus {
+.feature-card:focus {
   outline: 3px solid #007bff;
   outline-offset: 2px;
 }
 
 /* Responsive design */
 @media (max-width: 768px) {
-  .container {
+  .innovation-view-container {
+    padding: 10px 0;
+  }
+  
+  .page-header h1 {
+    font-size: 2rem;
+  }
+  
+  .page-header .lead {
+    font-size: 1rem;
+  }
+  
+  .nav-pills .nav-link {
+    margin: 2px;
+    padding: 8px 15px;
+    font-size: 0.9rem;
+  }
+  
+  .tab-content {
     padding: 20px;
   }
   
-  .feature-nav .nav-pills {
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  .feature-nav .nav-link {
-    width: 100%;
-    max-width: 300px;
-    margin-bottom: 10px;
-  }
-  
-  .feature-content {
-    min-height: 400px;
-    padding: 20px 0;
-  }
-  
-  .feature-overview {
-    padding: 20px;
+  .feature-icon-large {
+    font-size: 2.5rem;
   }
 }
 
 /* High contrast support */
+.high-contrast .nav-pills .nav-link {
+  border: 2px solid #000;
+}
+
+.high-contrast .nav-pills .nav-link.active {
+  background: #000;
+  color: #fff;
+}
+
 .high-contrast .feature-card {
-  border: 2px solid #000;
-}
-
-.high-contrast .nav-link {
-  border: 2px solid #000;
-}
-
-.high-contrast .btn-primary {
   border: 2px solid #000;
 }
 </style>
