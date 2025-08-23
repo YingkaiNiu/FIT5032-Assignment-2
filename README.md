@@ -1,235 +1,104 @@
-# Elderly Health Support - Health Charity Web Application
+# Elderly Health Support Web Application
 
-A modern Vue.js web application built for a distinguished health charity, dedicated to supporting vulnerable elderly populations through innovative technology solutions. This application demonstrates advanced web development concepts including authentication, role-based access control, and comprehensive health service management.
+A comprehensive Vue.js web application for elderly health support services, featuring Firebase authentication, email services, and interactive data tables.
 
 ## Features
 
-### Category A: Basic Functionality
-- ✅ **User Authentication System**
-  - User registration with form validation
-  - User login with credential verification
-  - Password reset functionality
-  - Session management with JWT tokens
-  - Role-based access control (User/Admin)
-  - Firebase Auth integration ready
+- 🔐 **Firebase Authentication** - User registration and login
+- 📧 **Email Service** - Send emails with attachments using EmailJS
+- 📊 **Interactive Tables** - Sortable, searchable, and paginated data tables
+- 🎨 **Modern UI** - Bootstrap-based responsive design
+- 🚀 **Cloud Deployment** - Deployed on Vercel
 
-- ✅ **Responsive Design**
-  - Mobile-first responsive layout optimized for elderly users
-  - Bootstrap 5 framework integration
-  - Cross-browser compatibility
-  - Modern UI/UX design principles
-  - Large text and high contrast for accessibility
+## Technologies Used
 
-- ✅ **Navigation & Routing**
-  - Vue Router implementation
-  - Protected routes with authentication guards
-  - Dynamic navigation based on user role
-  - Breadcrumb navigation
-  - Simple navigation structure for elderly users
+- Vue.js 3
+- Vue Router
+- Pinia (State Management)
+- Bootstrap 5
+- Firebase Authentication
+- EmailJS
+- Vite
 
-### Category B: Advanced Features
-- ✅ **Health Services Management**
-  - Comprehensive health service catalog
-  - Service locator with interactive map
-  - Appointment booking system
-  - Service categories and filtering
-  - Emergency services information
+## Business Requirements Implemented
 
-- ✅ **Health Resources System**
-  - Educational materials and health guides
-  - Wellness tips and daily health advice
-  - Resource search and filtering
-  - Multiple format support (PDF, Video, Articles)
-  - Emergency health information
+- **D1**: External Authentication (Firebase Auth)
+- **D2**: Email Service with Attachments (EmailJS)
+- **D3**: Interactive Table Data (Sort, Search, Pagination)
+- **D4**: Cloud Deployment (Vercel)
 
-- ✅ **Admin Panel**
-  - User management interface
-  - Service administration
-  - System settings configuration
-  - Analytics and reporting tools
-  - Appointment management
+## Getting Started
 
-### Category C: Enhanced Functionality
-- ✅ **Advanced UI Components**
-  - Modal dialogs and forms
-  - Data tables with sorting and pagination
-  - Interactive charts and graphs
-  - Toast notifications
-  - Loading states and error handling
-  - Elderly-friendly interface design
+### Prerequisites
 
-- ✅ **Data Management**
-  - State management with Pinia
-  - API integration patterns (Firestore ready)
-  - Data persistence with localStorage
-  - Real-time data updates
-  - CSV/PDF export capabilities
+- Node.js (v16 or higher)
+- npm or yarn
 
-- ✅ **Security Features**
-  - Input validation and sanitization
-  - CSRF protection
-  - Secure authentication flow
-  - Role-based permissions
-  - WCAG 2.1 AA accessibility compliance
+### Installation
 
-## Technology Stack
+1. Clone the repository:
+```bash
+git clone <your-repo-url>
+cd fit5032-assignment-2
+```
 
-- **Frontend Framework**: Vue.js 3 (Composition API)
-- **State Management**: Pinia
-- **Routing**: Vue Router 4
-- **UI Framework**: Bootstrap 5
-- **Build Tool**: Vite
-- **Package Manager**: npm
-- **Icons**: Bootstrap Icons
+2. Install dependencies:
+```bash
+npm install
+```
 
-## Installation
+3. Start development server:
+```bash
+npm run dev
+```
 
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd fit5032-web-application
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Start development server**
-   ```bash
-   npm run dev
-   ```
-
-4. **Open in browser**
-   Navigate to `http://localhost:3000`
-
-## Build for Production
-
+4. Build for production:
 ```bash
 npm run build
 ```
 
-The built files will be in the `dist` directory.
+## Deployment
+
+This application is deployed on Vercel. The live version can be accessed at:
+[Your Vercel URL will be here]
+
+### Deployment Steps
+
+1. Push your code to GitHub
+2. Connect your repository to Vercel
+3. Vercel will automatically build and deploy your application
 
 ## Project Structure
 
 ```
 src/
-├── assets/          # Static assets (CSS, images)
-├── components/      # Reusable Vue components
-├── router/          # Vue Router configuration
-├── stores/          # Pinia stores (state management)
-├── views/           # Page components
-├── App.vue          # Root component
-└── main.js          # Application entry point
+├── components/          # Vue components
+│   ├── EmailComponent.vue
+│   ├── UserTable.vue
+│   └── ServiceTable.vue
+├── views/              # Page components
+│   ├── Home.vue
+│   ├── FirebaseSigninView.vue
+│   ├── FirebaseRegisterView.vue
+│   ├── EmailView.vue
+│   └── TablesView.vue
+├── router/             # Vue Router configuration
+├── stores/             # Pinia stores
+├── assets/             # Static assets
+└── main.js            # Application entry point
 ```
 
-## Usage
+## Configuration
 
-### Authentication
+### Firebase Configuration
+- Project ID: `fit5037-assignment3`
+- Authentication enabled for email/password
 
-The application includes both mock authentication and user registration functionality:
-
-**Demo Accounts:**
-- **Admin User**: `admin@example.com` / `admin123`
-- **Regular User**: `user@example.com` / `user123`
-
-**New User Registration:**
-- Users can create new accounts through the registration form
-- New accounts are stored locally and can be used for login
-- Registration includes form validation and success feedback
-- See `TESTING.md` for detailed testing instructions
-
-### Features Overview
-
-1. **Home Page**: Landing page with health charity mission and services
-2. **Services**: Comprehensive health service catalog with interactive map
-3. **Resources**: Health guides, educational materials, and wellness tips
-4. **About**: Information about the charity's mission and impact
-5. **Contact**: Contact form with email integration and location map
-6. **Login/Register**: User authentication forms
-7. **Dashboard**: User dashboard with health statistics and appointments
-8. **Admin Panel**: Administrative interface for service management (admin only)
-
-### Role-Based Access
-
-- **Regular Users**: Can view services, book appointments, access health resources, manage profile
-- **Administrators**: Full access including user management, service administration, system settings
-
-### Target Audience
-
-- **Primary**: Elderly individuals (aged 65+) with limited technical skills
-- **Secondary**: Caregivers (aged 30-50) supporting elderly family members
-
-## Development
-
-### Adding New Features
-
-1. Create new components in `src/components/`
-2. Add routes in `src/router/index.js`
-3. Create views in `src/views/`
-4. Update state management in `src/stores/`
-
-### Styling
-
-- Use Bootstrap 5 classes for layout and components
-- Custom CSS in `src/assets/main.css`
-- Component-specific styles in `<style scoped>` blocks
-
-### State Management
-
-The application uses Pinia for state management:
-
-- `auth` store: User authentication and session management
-- Additional stores can be added for specific features
-
-## API Integration
-
-The application currently uses mock data. To integrate with a real API:
-
-1. Replace mock API calls in stores
-2. Configure axios for HTTP requests
-3. Update authentication flow
-4. Implement proper error handling
-
-## Browser Support
-
-- Chrome (latest)
-- Firefox (latest)
-- Safari (latest)
-- Edge (latest)
-
-## Performance
-
-- Lazy loading for routes
-- Optimized bundle size with Vite
-- Efficient state management
-- Responsive image loading
-
-## Security Considerations
-
-- Input validation on all forms
-- XSS protection through Vue's built-in escaping
-- CSRF token implementation ready
-- Secure authentication flow
-- Role-based access control
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
+### EmailJS Configuration
+- Service ID: `service_o0yplm6`
+- Template ID: `template_h33dq1e`
+- Public Key: `Km2ke5da8jX_fN9Bu`
 
 ## License
 
-This project is created for educational purposes as part of FIT5032 Assignment 2.
-
-## Support
-
-For questions or issues, please refer to the assignment documentation or contact your instructor.
-
----
-
-**Note**: This is a demonstration application built for educational purposes. In a production environment, additional security measures, proper API integration, and comprehensive testing would be required. 
+MIT License 
