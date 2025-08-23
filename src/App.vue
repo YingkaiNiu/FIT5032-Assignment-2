@@ -30,6 +30,9 @@
               <router-link class="nav-link" to="/tables">Interactive Tables</router-link>
             </li>
             <li class="nav-item">
+              <router-link class="nav-link" to="/map">Health Map</router-link>
+            </li>
+            <li class="nav-item">
               <router-link class="nav-link" to="/about">About</router-link>
             </li>
             <li class="nav-item">
