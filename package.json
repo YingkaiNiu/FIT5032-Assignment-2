@@ -14,11 +14,14 @@
     "@popperjs/core": "^2.11.8",
     "axios": "^1.4.0",
     "bootstrap": "^5.3.0",
+    "chart.js": "^4.4.0",
     "firebase": "^10.7.1",
-    "jspdf": "^2.5.1",
-    "jspdf-autotable": "^3.8.1",
+    "fullcalendar": "^6.1.10",
+    "jspdf": "^2.5.2",
+    "jspdf-autotable": "^3.8.4",
     "pinia": "^2.1.6",
     "vue": "^3.3.4",
+    "vue-chartjs": "^5.3.0",
     "vue-router": "^4.2.4"
   },
   "devDependencies": {

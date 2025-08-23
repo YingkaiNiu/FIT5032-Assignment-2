@@ -16,6 +16,7 @@ import FirebaseRegisterView from '../views/FirebaseRegisterView.vue'
 import EmailView from '../views/EmailView.vue'
 import TablesView from '../views/TablesView.vue'
 import MapView from '../views/MapView.vue'
+import InnovationView from '../views/InnovationView.vue'
 
 const routes = [
   {
@@ -61,6 +62,11 @@ const routes = [
     path: '/map',
     name: 'Map',
     component: MapView
+  },
+  {
+    path: '/innovation',
+    name: 'Innovation',
+    component: InnovationView
   },
   {
     path: '/logout-success',

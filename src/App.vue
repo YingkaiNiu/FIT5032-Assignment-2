@@ -172,6 +172,18 @@
                 Health Map
               </router-link>
             </li>
+            <li class="nav-item" role="none">
+              <router-link 
+                class="nav-link" 
+                to="/innovation" 
+                role="menuitem"
+                aria-label="Innovation features page"
+                @keydown.enter="navigateTo('/innovation')"
+                @keydown.space="navigateTo('/innovation')"
+              >
+                🚀 Innovation
+              </router-link>
+            </li>
           </ul>
           
           <ul class="navbar-nav" role="menubar">
