@@ -7,6 +7,14 @@
         <p class="lead">Advanced healthcare technology features to enhance your experience</p>
       </div>
       
+      <!-- Debug Info -->
+      <div v-if="debugInfo" class="alert alert-info mb-4">
+        <h5>Debug Information</h5>
+        <p>Active Feature: {{ activeFeature }}</p>
+        <p>Components Loaded: {{ componentsLoaded }}</p>
+        <p>Error: {{ componentError || 'None' }}</p>
+      </div>
+      
       <!-- Feature Navigation -->
       <div class="feature-navigation mb-4">
         <div class="row">
@@ -33,17 +41,52 @@
       <!-- Feature Content -->
       <div class="feature-content">
         <div class="tab-content">
-          <!-- AI Health Assistant -->
+          <!-- Health Goal Tracker -->
           <div
-            v-show="activeFeature === 'assistant'"
+            v-show="activeFeature === 'goal-tracker'"
             class="tab-pane fade"
-            :class="{ 'show active': activeFeature === 'assistant' }"
+            :class="{ 'show active': activeFeature === 'goal-tracker' }"
             role="tabpanel"
-            aria-labelledby="assistant-tab"
+            aria-labelledby="goal-tracker-tab"
           >
             <div class="row">
               <div class="col-12">
-                <HealthAssistant />
+                <div v-if="componentError" class="alert alert-danger">
+                  <h4>Component Error</h4>
+                  <p>{{ componentError }}</p>
+                </div>
+                <div v-else-if="!componentsLoaded" class="alert alert-warning">
+                  <h4>Loading Components...</h4>
+                  <p>Please wait while components are being loaded.</p>
+                </div>
+                <div v-else>
+                  <HealthGoalTracker />
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Health Reminder System -->
+          <div
+            v-show="activeFeature === 'reminder'"
+            class="tab-pane fade"
+            :class="{ 'show active': activeFeature === 'reminder' }"
+            role="tabpanel"
+            aria-labelledby="reminder-tab"
+          >
+            <div class="row">
+              <div class="col-12">
+                <div v-if="componentError" class="alert alert-danger">
+                  <h4>Component Error</h4>
+                  <p>{{ componentError }}</p>
+                </div>
+                <div v-else-if="!componentsLoaded" class="alert alert-warning">
+                  <h4>Loading Components...</h4>
+                  <p>Please wait while components are being loaded.</p>
+                </div>
+                <div v-else>
+                  <HealthReminder />
+                </div>
               </div>
             </div>
           </div>
@@ -58,7 +101,17 @@
           >
             <div class="row">
               <div class="col-12">
-                <HealthDashboard />
+                <div v-if="componentError" class="alert alert-danger">
+                  <h4>Component Error</h4>
+                  <p>{{ componentError }}</p>
+                </div>
+                <div v-else-if="!componentsLoaded" class="alert alert-warning">
+                  <h4>Loading Components...</h4>
+                  <p>Please wait while components are being loaded.</p>
+                </div>
+                <div v-else>
+                  <HealthDashboard />
+                </div>
               </div>
             </div>
           </div>
@@ -73,7 +126,17 @@
           >
             <div class="row">
               <div class="col-12">
-                <AppointmentScheduler />
+                <div v-if="componentError" class="alert alert-danger">
+                  <h4>Component Error</h4>
+                  <p>{{ componentError }}</p>
+                </div>
+                <div v-else-if="!componentsLoaded" class="alert alert-warning">
+                  <h4>Loading Components...</h4>
+                  <p>Please wait while components are being loaded.</p>
+                </div>
+                <div v-else>
+                  <AppointmentScheduler />
+                </div>
               </div>
             </div>
           </div>
@@ -88,7 +151,17 @@
           >
             <div class="row">
               <div class="col-12">
-                <OfflineHealthRecords />
+                <div v-if="componentError" class="alert alert-danger">
+                  <h4>Component Error</h4>
+                  <p>{{ componentError }}</p>
+                </div>
+                <div v-else-if="!componentsLoaded" class="alert alert-warning">
+                  <h4>Loading Components...</h4>
+                  <p>Please wait while components are being loaded.</p>
+                </div>
+                <div v-else>
+                  <OfflineHealthRecords />
+                </div>
               </div>
             </div>
           </div>
@@ -133,27 +206,80 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import HealthAssistant from '../components/HealthAssistant.vue'
+import { ref, onMounted, onErrorCaptured } from 'vue'
+
+// Static imports
+import HealthGoalTracker from '../components/HealthGoalTracker.vue'
+import HealthReminder from '../components/HealthReminder.vue'
 import HealthDashboard from '../components/HealthDashboard.vue'
 import AppointmentScheduler from '../components/AppointmentScheduler.vue'
 import OfflineHealthRecords from '../components/OfflineHealthRecords.vue'
 
+const componentError = ref(null)
+const componentsLoaded = ref(false)
+const debugInfo = ref(false) // Set to false to hide debug info
+
+// Check if Bootstrap is available
+const checkBootstrap = () => {
+  if (typeof bootstrap === 'undefined') {
+    console.warn('Bootstrap is not available. Some components may not work properly.')
+    return false
+  }
+  return true
+}
+
+// Error capture
+onErrorCaptured((error) => {
+  console.error('Component error captured:', error)
+  componentError.value = error.message
+  return false
+})
+
+onMounted(() => {
+  console.log('InnovationView mounted')
+  console.log('HealthGoalTracker:', HealthGoalTracker)
+  console.log('HealthReminder:', HealthReminder)
+  console.log('HealthDashboard:', HealthDashboard)
+  console.log('AppointmentScheduler:', AppointmentScheduler)
+  console.log('OfflineHealthRecords:', OfflineHealthRecords)
+  
+  // Check Bootstrap availability
+  checkBootstrap()
+  
+  // Simulate loading delay
+  setTimeout(() => {
+    componentsLoaded.value = true
+    console.log('Components loaded successfully')
+  }, 100)
+})
+
 // Active feature state
-const activeFeature = ref('assistant')
+const activeFeature = ref('goal-tracker')
 
 // Features data
 const features = ref([
   {
-    id: 'assistant',
-    name: 'AI Health Assistant',
-    icon: '🤖',
-    description: 'Intelligent health consultation powered by advanced AI technology',
+    id: 'goal-tracker',
+    name: 'Health Goal Tracker',
+    icon: '🎯',
+    description: 'Set and track personal health goals with progress monitoring',
     benefits: [
-      '24/7 health advice availability',
-      'Personalized health recommendations',
-      'Symptom analysis and guidance',
-      'Multilingual support'
+      'Personalized goal setting',
+      'Progress tracking and visualization',
+      'Category-based organization',
+      'Local data storage for privacy'
+    ]
+  },
+  {
+    id: 'reminder',
+    name: 'Health Reminder System',
+    icon: '⏰',
+    description: 'Comprehensive health reminder and notification system',
+    benefits: [
+      'Customizable reminder scheduling',
+      'Category-based organization',
+      'Daily reminder tracking',
+      'Local storage for privacy'
     ]
   },
   {

@@ -10,7 +10,8 @@ A comprehensive Vue.js web application for elderly health support services, feat
 - 🗺️ **Health Map** - Google Maps integration for health services
 - 📤 **Data Export** - CSV and PDF export functionality
 - ♿ **Accessibility** - WCAG 2.1 AA compliance
-- 🤖 **AI Health Assistant** - Intelligent health consultation
+- 🎯 **Health Goal Tracker** - Set and track personal health goals
+- ⏰ **Health Reminder System** - Comprehensive health reminder and notification system
 - 📈 **Health Dashboard** - Real-time analytics and visualization
 - 📅 **Smart Scheduler** - Appointment management system
 - 📱 **Offline Records** - Offline-capable health record management
@@ -28,7 +29,7 @@ A comprehensive Vue.js web application for elderly health support services, feat
 - Google Maps API
 - Chart.js & vue-chartjs
 - FullCalendar
-- Gemini AI API
+
 - jsPDF & jspdf-autotable
 - Vite
 
@@ -41,7 +42,7 @@ A comprehensive Vue.js web application for elderly health support services, feat
 - **E2**: Map Integration (Google Maps API)
 - **E4**: Data Export (CSV and PDF)
 - **WCAG 2.1 AA**: Accessibility Compliance
-- **F**: Innovation Features (AI Assistant, Dashboard, Scheduler, Offline Records)
+- **F**: Innovation Features (Health Goal Tracker, Health Reminder System, Dashboard, Scheduler, Offline Records)
 
 ## Getting Started
 
@@ -118,8 +119,7 @@ src/
 ### Google Maps Configuration
 - API Key: `AIzaSyAye5w6yoFt_O5FwUBaEaZDqCtQ9i5isuY`
 
-### Gemini AI Configuration
-- API Key: `YOUR_GEMINI_API_KEY` (Replace with your actual key)
+
 
 ## License
 
